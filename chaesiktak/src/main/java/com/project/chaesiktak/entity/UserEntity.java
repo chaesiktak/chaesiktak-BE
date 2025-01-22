@@ -1,5 +1,8 @@
 package com.project.chaesiktak.entity;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,12 +17,9 @@ public class UserEntity {
 
     private String username;
     private String password;
-    private String email;
-    private String name;
-    private String nickname;
     private String role;
 
-    private boolean emailVerified = false; // 이메일 인증 여부 추가
+    private boolean emailVerified;
 
     public Boolean getEmailVerified() {
         return emailVerified;
@@ -28,4 +28,7 @@ public class UserEntity {
     public void setEmailVerified(Boolean emailVerified) {
         this.emailVerified = emailVerified;
     }
+
+
+
 }

@@ -1,10 +1,9 @@
 package com.project.chaesiktak.jwt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.chaesiktak.dto.CustomUserDetails;
 import com.project.chaesiktak.dto.LoginDTO;
 import com.project.chaesiktak.entity.RefreshEntity;
 import com.project.chaesiktak.repository.RefreshRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.Cookie;
@@ -108,7 +107,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
+        cookie.setMaxAge(24*60*60); //1day
         //cookie.setSecure(true);
         //cookie.setPath("/");
         cookie.setHttpOnly(true);

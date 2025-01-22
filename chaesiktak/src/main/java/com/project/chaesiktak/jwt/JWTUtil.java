@@ -9,8 +9,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-// 0.12.3 version
-
 @Component
 public class JWTUtil {
 
@@ -53,4 +51,11 @@ public class JWTUtil {
                 .signWith(secretKey)
                 .compact();
     }
+
+    public String createEmailVerificationToken(String username) {
+        return createJwt("email-verification", username, "ROLE_USER", 600000L); // 10분 만료
+    }
+
+
 }
+

@@ -17,6 +17,7 @@ public class CustomUserDetails  implements UserDetails {
     }
 
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
@@ -44,6 +45,10 @@ public class CustomUserDetails  implements UserDetails {
     public String getUsername() {
 
         return userEntity.getUsername();
+    }
+
+    public String getRole() {
+        return userEntity.getRole();  // UserEntity에서 role을 가져옴
     }
 
     @Override

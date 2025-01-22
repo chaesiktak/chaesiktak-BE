@@ -1,6 +1,7 @@
 package com.project.chaesiktak.controller;
 
 import com.project.chaesiktak.service.EmailVerificationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,10 +11,13 @@ public class EmailVerificationController {
 
     private final EmailVerificationService emailVerificationService;
 
+    @Autowired
     public EmailVerificationController(EmailVerificationService emailVerificationService) {
         this.emailVerificationService = emailVerificationService;
     }
 
+
+    // 이메일 인증 처리 (PathVariable 사용)
     @GetMapping("/verify")
     public String verifyEmail(@RequestParam String token) {
         boolean isVerified = emailVerificationService.verifyEmail(token);
@@ -23,4 +27,6 @@ public class EmailVerificationController {
             return "유효하지 않거나 만료된 토큰입니다.";
         }
     }
+
+
 }

@@ -6,6 +6,7 @@ import com.project.chaesiktak.jwt.JWTFilter;
 import com.project.chaesiktak.jwt.JWTUtil;
 import com.project.chaesiktak.jwt.LoginFilter;
 import com.project.chaesiktak.repository.RefreshRepository;
+import com.project.chaesiktak.repository.UserRepository;
 import com.project.chaesiktak.service.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
@@ -29,18 +30,15 @@ import java.util.Collections;
 @EnableWebSecurity
 public class SecurityConfig {
 
-
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
-    private final CustomUserDetailsService customUserDetailsService;
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository, CustomUserDetailsService customUserDetailsService) {
+
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
 
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
-        this.customUserDetailsService = customUserDetailsService;
-
     }
 
     @Bean
@@ -56,13 +54,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        return customUserDetailsService;
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
 
         http
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
@@ -89,7 +81,6 @@ public class SecurityConfig {
         http
                 .csrf((auth) -> auth.disable());
 
-
         //From 로그인 방식 disable
         http
                 .formLogin((auth) -> auth.disable());
@@ -101,7 +92,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join", "/verify").permitAll()
+                        .requestMatchers("/login", "/", "/join","/verify").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/reissue").permitAll()
                         .anyRequest().authenticated());
