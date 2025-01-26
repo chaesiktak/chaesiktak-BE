@@ -42,14 +42,19 @@ public class CustomUserDetails  implements UserDetails {
     }
 
     @Override
-    public String getUsername() {
+    public String getUsername() { //필수 구현 메서드
 
         return userEntity.getUsername();
     }
 
     public String getRole() {
-        return userEntity.getRole();  // UserEntity에서 role을 가져옴
+        return userEntity.getRole();
     }
+
+    public String getNickname() {
+        return userEntity.getNickname();
+    }
+
 
     @Override
     public boolean isAccountNonExpired() {

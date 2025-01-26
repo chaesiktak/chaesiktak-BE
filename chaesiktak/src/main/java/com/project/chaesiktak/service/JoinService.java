@@ -27,6 +27,8 @@ public class JoinService {
     public String joinProcess(JoinDTO joinDTO) {
         String username = joinDTO.getUsername();
         String password = joinDTO.getPassword();
+        String name = joinDTO.getName();
+        String nickname = joinDTO.getNickname();
 
         // 사용자 중복 체크
         if (userRepository.existsByUsername(username)) {
@@ -37,6 +39,8 @@ public class JoinService {
         UserEntity user = new UserEntity();
         user.setUsername(username);
         user.setPassword(bCryptPasswordEncoder.encode(password));
+        user.setName(name);
+        user.setNickname(nickname);
         user.setRole("ROLE_USER");
         if ("chaesiktak2025@gmail.com".equals(joinDTO.getUsername())) {
             user.setRole("ROLE_ADMIN"); // 특정 이메일은 ROLE_ADMIN으로 설정
