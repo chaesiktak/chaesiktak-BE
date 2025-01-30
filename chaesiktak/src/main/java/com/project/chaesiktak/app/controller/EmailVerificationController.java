@@ -29,12 +29,13 @@ public class EmailVerificationController {
                             .build()
             );
         } else {
+            // 예외처리1. 토큰 만료 혹은 잘못된 토큰 값
             return ResponseEntity.badRequest().body(
                     ApiResponseTemplete.<String>builder()
                             .status(400)
                             .success(false)
                             .message("이메일 인증에 실패하였습니다.")
-                            .data("토큰이 만료되었거나 유효하지 않습니다! 다시 요청해주세요.")
+                            .data("토큰이 만료되었거나 유효하지 않습니다. 다시 요청해주세요.")
                             .build()
             );
         }

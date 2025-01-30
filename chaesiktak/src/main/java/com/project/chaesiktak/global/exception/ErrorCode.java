@@ -11,7 +11,7 @@ public enum ErrorCode {
 
     // 400 Bad Request
     VALIDATION_EXCEPTION(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
-    PASSWORD_MISMATCH_EXCEPTION(HttpStatus.BAD_REQUEST,"존재하지 않는 비밀번호 or 비밀번호가 잘못되었습니다"),
+    PASSWORD_MISMATCH_EXCEPTION(HttpStatus.BAD_REQUEST,"비밀번호를 확인해주세요."),
     ALREADY_EXIT_EMAIL_EXCEPTION(HttpStatus.BAD_REQUEST,"이미 존재하는 이메일입니다."),
     ALREADY_EXIT_NICKNAME_EXCEPTION(HttpStatus.BAD_REQUEST,"이미 존재하는 닉네임입니다."),
     VALIDATION_REQUEST_MISSING_EXCEPTION(HttpStatus.BAD_REQUEST, "필수적인 요청 값이 입력되지 않았습니다."),
@@ -33,7 +33,7 @@ public enum ErrorCode {
     INVALID_FILE_TYPE_EXCEPTION(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일입니다."),
 
     // 401 Unauthorized
-    UNAUTHORIZED_EMAIL_EXCEPTION(HttpStatus.UNAUTHORIZED, "이메일 인증이 되지 않은 유저"),
+    UNAUTHORIZED_EMAIL_EXCEPTION(HttpStatus.UNAUTHORIZED, "이메일 인증이 필요합니다."),
     UNAUTHORIZED_EXCEPTION(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자거나 인증과정에 오류가 있습니다. "),
     INVALID_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     ONLY_OWN_EVENT_MODIFY_EXCEPTION(HttpStatus.UNAUTHORIZED, "본인이 작성한 Event만 수정/삭제 가능합니다."),

@@ -54,6 +54,8 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable) //
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/sign-up").permitAll() // 회원가입 요청 허용
+                        .requestMatchers("/api/check/email").permitAll() // 이메일 중복 확인 요청 허용
+                        .requestMatchers("/api/check/nickname").permitAll() // 닉네임 중복 확인 요청 허용
                         .requestMatchers("/api/login").permitAll() // 로그인 요청 허용
                         .requestMatchers("/api/verify/email").permitAll() // 이메일 인증 API 허용
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**").permitAll() // Swagger 경로 허용
