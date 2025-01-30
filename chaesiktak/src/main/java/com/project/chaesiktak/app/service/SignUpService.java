@@ -23,7 +23,7 @@ public class SignUpService {
     private final PasswordEncoder passwordEncoder;
     private final EmailVerificationService emailVerificationService;
 
-    public ApiResponseTemplete<UserSignUpDto> signUp(UserSignUpDto userSignUpDto) throws Exception {
+    public ApiResponseTemplete<UserSignUpDto> signUp(UserSignUpDto userSignUpDto) {
         // 예외처리1. 이메일 중복 상태로 api 요청시
         if (userRepository.findByEmail(userSignUpDto.getEmail()).isPresent()) {
             return ApiResponseTemplete.<UserSignUpDto>builder()

@@ -43,7 +43,7 @@ public class UserLoginController {
             );
         }
         // 예외처리2. 아이디(이메일)가 존재 하지 않는 경우
-        if (!userRepository.findByEmail(loginRequestDto.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(loginRequestDto.getEmail()).isEmpty()) {
             return ResponseEntity.badRequest().body(
                     ApiResponseTemplete.<LoginResponseDto>builder()
                             .status(400)
