@@ -23,7 +23,14 @@ public enum SuccessCode {
     // 201 Created, Delete
     CREATE_POST_SUCCESS(HttpStatus.CREATED, "게시글 생성이 완료되었습니다."),
     DELETE_ATTENDANCE_SUCCESS(HttpStatus.NO_CONTENT, "작업 현장 탈퇴가 완료되었습니다."),
-    DELETE_REPORT_SUCCESS(HttpStatus.NO_CONTENT, "신고 내역이 정상적으로 삭제되었습니다. ");
+    DELETE_REPORT_SUCCESS(HttpStatus.NO_CONTENT, "신고 내역이 정상적으로 삭제되었습니다. "),
+
+    // Notice
+    NOTICE_CREATED(HttpStatus.CREATED, "공지사항이 성공적으로 생성되었습니다."),
+    NOTICE_UPDATED(HttpStatus.OK, "공지사항이 성공적으로 수정되었습니다."),
+    NOTICE_DELETED(HttpStatus.OK, "공지사항이 성공적으로 삭제되었습니다."),
+    NOTICE_FOUND(HttpStatus.OK, "공지사항 조회 성공");
+
 
     private final HttpStatus httpStatus;
     private final String message;

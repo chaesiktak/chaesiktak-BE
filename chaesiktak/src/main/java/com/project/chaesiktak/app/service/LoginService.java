@@ -1,6 +1,7 @@
 package com.project.chaesiktak.app.service;
 
 import com.project.chaesiktak.app.domain.User;
+import com.project.chaesiktak.app.dto.user.CustomUserDetails;
 import com.project.chaesiktak.app.repository.UserRepository;
 import com.project.chaesiktak.global.exception.ErrorCode;
 import com.project.chaesiktak.global.exception.model.CustomException;
@@ -22,12 +23,14 @@ public class LoginService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER_EXCEPTION,
                         ErrorCode.NOT_FOUND_USER_EXCEPTION.getMessage()));
-
-        return org.springframework.security.core.userdetails.User.builder()
+        /**
+        * return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
                 .roles(user.getRoleType().name())
                 .build();
+        * */
+        return new CustomUserDetails(user);
     }
     /**
      * 이메일 인증 여부 확인
@@ -37,5 +40,6 @@ public class LoginService implements UserDetailsService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER_EXCEPTION,
                         "해당 이메일을 가진 사용자를 찾을 수 없습니다."));
         return user.getEmailVerified();
+
     }
 }
