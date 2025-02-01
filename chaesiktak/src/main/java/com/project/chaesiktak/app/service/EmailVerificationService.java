@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.UUID;
 import java.time.Duration;
@@ -29,6 +30,7 @@ public class EmailVerificationService {
     private final EmailVerificationRepository emailVerificationRepository;
     private final UserRepository userRepository;
     private final JavaMailSender mailSender;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${spring.mail.auth-code-expiration-millis}")
     private Long expirationMillis;
@@ -36,19 +38,24 @@ public class EmailVerificationService {
     @Autowired
     public EmailVerificationService(EmailVerificationRepository emailVerificationRepository,
                                     UserRepository userRepository,
-                                    JavaMailSender mailSender) {
+                                    JavaMailSender mailSender,
+                                    PasswordEncoder passwordEncoder) {
         this.emailVerificationRepository = emailVerificationRepository;
         this.userRepository = userRepository;
         this.mailSender = mailSender;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
-     * 이메일 인증 메일 발송
+     * 이메일 인증 메일 발송 (기존 인증 데이터 삭제 후 새로운 데이터 저장)
      */
     @Transactional
-    public void sendVerificationEmail(String email) {
+    public ApiResponseTemplete<String> sendVerificationEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이메일을 가진 사용자를 찾을 수 없습니다. : " + email));
+
+        // 기존 이메일 인증 데이터를 삭제하여 하나의 이메일당 하나의 인증 데이터만 유지
+        emailVerificationRepository.deleteByUser(user);
 
         String token = UUID.randomUUID().toString();
         LocalDateTime expirationTime = LocalDateTime.now().plus(Duration.ofMillis(expirationMillis));
@@ -60,7 +67,6 @@ public class EmailVerificationService {
                 .build();
 
         emailVerificationRepository.save(emailVerification);
-        // 메일로 발송하는 인증 링크 양식 정의
         String verificationLink = "http://localhost:8080/api/verify/email?token=" + token;
 
         try {
@@ -71,8 +77,19 @@ public class EmailVerificationService {
             helper.setText("<p>채식탁 서비스의 이메일 인증을 위해 하단의 링크를 클릭해주세요! :</p><a href=\"" + verificationLink + "\">인증하기</a>", true);
 
             mailSender.send(message);
+            return ApiResponseTemplete.<String>builder()
+                    .status(200)
+                    .success(true)
+                    .message("이메일 인증 링크가 발송되었습니다.")
+                    .data(null)
+                    .build();
         } catch (MessagingException e) {
-            throw new IllegalStateException("Failed to send verification email.", e);
+            return ApiResponseTemplete.<String>builder()
+                    .status(500)
+                    .success(false)
+                    .message("이메일 전송에 실패하였습니다.")
+                    .data(null)
+                    .build();
         }
     }
 
@@ -83,7 +100,6 @@ public class EmailVerificationService {
     public ApiResponseTemplete<String> verifyEmail(String token) {
         Optional<EmailVerification> optionalVerification = emailVerificationRepository.findByToken(token);
 
-        // 유효한 토큰인지 확인
         if (optionalVerification.isEmpty()) {
             return ApiResponseTemplete.<String>builder()
                     .status(400)
@@ -96,7 +112,6 @@ public class EmailVerificationService {
         EmailVerification verification = optionalVerification.get();
         User user = verification.getUser();
 
-        // 이미 인증된 사용자인 경우
         if (user.getEmailVerified()) {
             return ApiResponseTemplete.<String>builder()
                     .status(200)
@@ -106,7 +121,6 @@ public class EmailVerificationService {
                     .build();
         }
 
-        // 토큰 만료 여부 확인
         if (verification.getExpirationTime().before(new Date())) {
             emailVerificationRepository.delete(verification);
             return ApiResponseTemplete.<String>builder()
@@ -117,7 +131,6 @@ public class EmailVerificationService {
                     .build();
         }
 
-        // 이메일 인증 완료 처리
         user.setEmailVerified(true);
         userRepository.save(user);
         emailVerificationRepository.delete(verification);
@@ -128,5 +141,44 @@ public class EmailVerificationService {
                 .message("이메일 인증이 성공적으로 완료되었습니다.")
                 .data(user.getEmail())
                 .build();
+    }
+
+    /**
+     * 이메일 인증 재전송 (기존 인증 데이터 삭제 후 새로운 데이터 저장)
+     */
+    @Transactional
+    public ApiResponseTemplete<String> resendVerificationEmail(String email, String password) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return ApiResponseTemplete.<String>builder()
+                    .status(400)
+                    .success(false)
+                    .message("존재하지 않는 이메일입니다.")
+                    .data(null)
+                    .build();
+        }
+
+        User user = optionalUser.get();
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ApiResponseTemplete.<String>builder()
+                    .status(400)
+                    .success(false)
+                    .message("아이디 또는 비밀번호를 확인해주세요.")
+                    .data(null)
+                    .build();
+        }
+
+        if (user.getEmailVerified()) {
+            return ApiResponseTemplete.<String>builder()
+                    .status(400)
+                    .success(false)
+                    .message("이미 이메일 인증이 완료되었습니다.")
+                    .data(null)
+                    .build();
+        }
+
+        return sendVerificationEmail(email);
     }
 }

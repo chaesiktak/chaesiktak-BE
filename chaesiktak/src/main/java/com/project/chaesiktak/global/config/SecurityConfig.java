@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/check/nickname").permitAll() // 닉네임 중복 확인 요청 허용
                         .requestMatchers("/api/login").permitAll() // 로그인 요청 허용
                         .requestMatchers("/api/verify/email").permitAll() // 이메일 인증 API 허용
+                        .requestMatchers("/api/verify/resend").permitAll() // 이메일 재전송 API 허용
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**").permitAll() // Swagger 경로 허용
                         .anyRequest().authenticated() // 나머진 인증 필요
                 )
