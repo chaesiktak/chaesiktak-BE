@@ -1,8 +1,0 @@
-jwt:
-  access:
-    expiration: ${ATOKEN_TIME}
-    header: Authorization
-  refresh:
-    expiration: ${RTOKEN_TIME}
-    header: Refresh-Token
-  secret: ${JWT_SECRET}
