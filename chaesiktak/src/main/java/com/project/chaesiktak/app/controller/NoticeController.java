@@ -57,7 +57,7 @@ public class NoticeController {
     }
 
     // 🔹 공지사항 수정 (PUT)
-    @PutMapping("/update")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponseTemplete<NoticeDto>> update(@RequestBody NoticeDto noticeDto) {
         try {
             NoticeDto updatedNotice = noticeService.update(noticeDto);
