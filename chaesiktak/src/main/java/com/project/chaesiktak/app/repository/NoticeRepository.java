@@ -5,12 +5,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Repository
 public interface NoticeRepository extends JpaRepository<NoticeEntity, Long> {
     @Modifying
-    @Query(value = "update NoticeEntity b set b.noticeHits = b.noticeHits+1 where b.id=:id")
+    @Transactional
+    @Query("UPDATE NoticeEntity b SET b.noticeHits = b.noticeHits + 1 WHERE b.id = :id")
     void updateHits(@Param("id") Long id);
     List<NoticeEntity> findTop3ByOrderByIdDesc();
 }
