@@ -26,7 +26,7 @@ public class NoticeEntity extends BaseEntity {
     private String noticeContent;
 
     @Column
-    private int noticeHits;
+    private int noticeHits = 0;
 
     /*
     @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -38,7 +38,7 @@ public class NoticeEntity extends BaseEntity {
         noticeEntity.setNoticeWriter(noticeDto.getNoticeWriter() != null ? noticeDto.getNoticeWriter() : "관리자");
         noticeEntity.setNoticeTitle(noticeDto.getNoticeTitle());
         noticeEntity.setNoticeContent(noticeDto.getNoticeContent());
-        noticeEntity.setNoticeHits(0);
+        //noticeEntity.setNoticeHits(0);
         return noticeEntity;
     }
 

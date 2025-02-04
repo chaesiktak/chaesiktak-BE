@@ -43,10 +43,11 @@ public class NoticeService {
         noticeRepository.updateHits(id);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public NoticeDto findById(Long id) {
         NoticeEntity noticeEntity = noticeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공지입니다."));
+        noticeRepository.updateHits(id);
         return NoticeDto.toNoticeDto(noticeEntity);
     }
 
