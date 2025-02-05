@@ -38,7 +38,6 @@ public class NoticeEntity extends BaseEntity {
         noticeEntity.setNoticeWriter(noticeDto.getNoticeWriter() != null ? noticeDto.getNoticeWriter() : "관리자");
         noticeEntity.setNoticeTitle(noticeDto.getNoticeTitle());
         noticeEntity.setNoticeContent(noticeDto.getNoticeContent());
-        //noticeEntity.setNoticeHits(0);
         return noticeEntity;
     }
 

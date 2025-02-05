@@ -50,7 +50,7 @@ public class User {
     // 이메일 인증 여부 설정
     public void setEmailVerified(Boolean emailVerified) { this.emailVerified = emailVerified; }
     // 유저 권한 정보 반환
-    public void authorizeUser() { this.roleType = RoleType.ROLE_USER; }
+    public void authorizeUser() { this.roleType = RoleType.USER; }
     // 비밀번호 암호화 후 반환
     public void passwordEncode(PasswordEncoder passwordEncoder) { this.password = passwordEncoder.encode(this.password); }
     // 리프레쉬 토큰 반환
