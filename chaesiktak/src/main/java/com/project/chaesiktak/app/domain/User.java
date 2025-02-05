@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
@@ -29,8 +30,11 @@ public class User {
     private String email;
 
     private String password;
+
+    @Setter
     private String userName;
 
+    @Setter
     @Column(nullable = false, unique = true)
     private String userNickName;
 
@@ -39,6 +43,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private RoleType roleType;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private VeganType veganType;
 
@@ -53,6 +58,8 @@ public class User {
     public void authorizeUser() { this.roleType = RoleType.USER; }
     // 비밀번호 암호화 후 반환
     public void passwordEncode(PasswordEncoder passwordEncoder) { this.password = passwordEncoder.encode(this.password); }
+    // 비밀번호 암호화 후 재설정
+    public void setEncodedPassword(PasswordEncoder passwordEncoder, String newPassword) { this.password = passwordEncoder.encode(newPassword); }
     // 리프레쉬 토큰 반환
     public void updateRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
 

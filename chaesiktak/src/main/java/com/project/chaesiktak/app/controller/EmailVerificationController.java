@@ -49,4 +49,13 @@ public class EmailVerificationController {
     public ApiResponseTemplete<String> resendVerificationEmail(@RequestBody LoginRequestDto loginRequestDto) {
         return emailVerificationService.resendVerificationEmail(loginRequestDto.getEmail(), loginRequestDto.getPassword());
     }
+
+    /**
+     * 비밀번호 재설정 API : 사용자가 비밀번호를 재설정하기 위해서 이메일 인증을 진행
+     */
+//
+//    @PostMapping("/passwordreset")
+//    public ApiResponseTemplete<String> passwordResetVerificationEmail(@RequestBody LoginRequestDto loginRequestDto) {
+//        return
+//    }
 }
