@@ -24,7 +24,7 @@ import java.util.List;
 public class NoticeService {
     private final NoticeRepository noticeRepository;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void save(NoticeDto noticeDto) throws IOException{
         NoticeEntity noticeEntity = NoticeEntity.toSaveEntity(noticeDto);
         noticeRepository.save(noticeEntity);
@@ -52,7 +52,7 @@ public class NoticeService {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public NoticeDto update(NoticeDto noticeDto){
         NoticeEntity noticeEntity = NoticeEntity.toUpdateEntity(noticeDto);
         noticeRepository.save(noticeEntity);
@@ -60,7 +60,7 @@ public class NoticeService {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(Long id){
         noticeRepository.deleteById(id);
     }

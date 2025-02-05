@@ -49,7 +49,7 @@ public class SignUpService {
                     .password(userSignUpDto.getPassword())
                     .userName(userSignUpDto.getUserName())
                     .userNickName(userSignUpDto.getUserNickName())
-                    .roleType(RoleType.ROLE_USER) // 권한 설정:USER
+                    .roleType(RoleType.USER) // 권한 설정:USER
                     .veganType(VeganType.DEFAULT) // 기본 채식 상태:DEFAULT
                     .emailVerified(false) // 이메일 인증 상태:false
                     .build();
