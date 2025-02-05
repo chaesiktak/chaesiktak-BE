@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class CustomUserDetails  implements UserDetails {
+public class CustomUserDetails implements UserDetails {
 
     private final User user;
 
@@ -17,13 +17,8 @@ public class CustomUserDetails  implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-
         Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(new GrantedAuthority() {
-
-            @Override
-            public String getAuthority() { return user.getRoleType().name(); }
-        });
+        collection.add((GrantedAuthority) () -> user.getRoleType().name());
         return collection;
     }
 
@@ -31,7 +26,7 @@ public class CustomUserDetails  implements UserDetails {
     public String getPassword() { return user.getPassword(); }
 
     @Override
-    public String getUsername() { return user.getUserName(); }
+    public String getUsername() { return user.getEmail(); } // 이메일을 반환하도록 수정
 
     public String getRole() { return user.getRoleType().name(); }
 
