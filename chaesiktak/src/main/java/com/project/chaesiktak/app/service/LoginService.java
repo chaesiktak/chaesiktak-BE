@@ -22,10 +22,8 @@ public class LoginService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER_EXCEPTION,
                         "해당 이메일을 가진 사용자를 찾을 수 없습니다."));
-
         return new CustomUserDetails(user); // CustomUserDetails로 변경
     }
-
     /**
      * 이메일 인증 여부 확인
      */
