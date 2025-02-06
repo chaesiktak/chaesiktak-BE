@@ -6,6 +6,8 @@ import com.project.chaesiktak.app.repository.UserRepository;
 import com.project.chaesiktak.app.service.LoginService;
 import com.project.chaesiktak.global.security.TokenService;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -95,5 +97,53 @@ public class UserLoginController {
                 .message("로그인 성공!")
                 .data(loginResponse)
                 .build());
+    }
+    /**
+     * 로그아웃 API
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponseTemplete<String>> logout(HttpServletRequest request, HttpServletResponse response) {
+        // 요청에서 액세스 토큰 추출
+        String accessToken = tokenService.extractAccessToken(request)
+                .orElse(null);
+
+        if (accessToken == null || !tokenService.validateToken(accessToken)) {
+            return ResponseEntity.status(401).body(
+                    ApiResponseTemplete.<String>builder()
+                            .status(401)
+                            .success(false)
+                            .message("인증되지 않은 사용자입니다. (유효하지 않은 액세스 토큰)")
+                            .data(null)
+                            .build()
+            );
+        }
+// 토큰에서 사용자 이메일 추출
+        String email = tokenService.extractEmail(accessToken)
+                .orElse(null);
+
+        if (email == null) {
+            return ResponseEntity.status(401).body(
+                    ApiResponseTemplete.<String>builder()
+                            .status(401)
+                            .success(false)
+                            .message("인증되지 않은 사용자입니다. (토큰에서 이메일 추출 실패)")
+                            .data(null)
+                            .build()
+            );
+        }
+        // 해당 사용자의 Refresh Token 삭제
+        tokenService.removeRefreshToken(email);
+        // 클라이언트 쿠키/헤더에서 토큰 제거 (선택)
+        response.setHeader("Authorization", "");
+        response.setHeader("Refresh-Token", "");
+
+        return ResponseEntity.ok(
+                ApiResponseTemplete.<String>builder()
+                        .status(200)
+                        .success(true)
+                        .message("로그아웃 성공")
+                        .data(null)
+                        .build()
+        );
     }
 }
