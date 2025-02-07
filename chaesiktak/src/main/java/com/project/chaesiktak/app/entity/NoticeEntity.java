@@ -44,7 +44,7 @@ public class NoticeEntity extends BaseEntity {
     public static NoticeEntity toUpdateEntity(NoticeDto noticeDto) {
         NoticeEntity noticeEntity = new NoticeEntity();
         noticeEntity.setId(noticeDto.getId());
-        noticeEntity.setNoticeWriter(noticeDto.getNoticeWriter());
+        noticeEntity.setNoticeWriter(noticeDto.getNoticeWriter() != null ? noticeDto.getNoticeWriter() : "관리자");
         noticeEntity.setNoticeTitle(noticeDto.getNoticeTitle());
         noticeEntity.setNoticeContent(noticeDto.getNoticeContent());
         noticeEntity.setNoticeHits(noticeDto.getNoticeHits());

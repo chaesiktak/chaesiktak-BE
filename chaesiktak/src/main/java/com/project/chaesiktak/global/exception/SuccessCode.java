@@ -29,7 +29,13 @@ public enum SuccessCode {
     NOTICE_CREATED(HttpStatus.CREATED, "공지사항이 성공적으로 생성되었습니다."),
     NOTICE_UPDATED(HttpStatus.OK, "공지사항이 성공적으로 수정되었습니다."),
     NOTICE_DELETED(HttpStatus.OK, "공지사항이 성공적으로 삭제되었습니다."),
-    NOTICE_FOUND(HttpStatus.OK, "공지사항 조회 성공");
+    NOTICE_FOUND(HttpStatus.OK, "공지사항 조회 성공"),
+
+    // Recipe
+    RECIPE_CREATED(HttpStatus.CREATED, "레시피가 성공적으로 생성되었습니다."),
+    RECIPE_UPDATED(HttpStatus.OK, "공지사항이 성공적으로 수정되었습니다."),
+    RECIPE_DELETED(HttpStatus.OK, "공지사항이 성공적으로 삭제되었습니다."),
+    RECIPE_FOUND(HttpStatus.OK, "공지사항 조회 성공");
 
 
     private final HttpStatus httpStatus;
