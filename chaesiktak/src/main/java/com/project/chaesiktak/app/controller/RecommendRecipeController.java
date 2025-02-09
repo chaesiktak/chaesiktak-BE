@@ -1,6 +1,5 @@
 package com.project.chaesiktak.app.controller;
 
-import com.project.chaesiktak.app.dto.board.NoticeDto;
 import com.project.chaesiktak.app.dto.board.RecommendRecipeDto;
 import com.project.chaesiktak.app.service.RecommendRecipeService;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -47,10 +45,11 @@ public class RecommendRecipeController {
         try {
             RecommendRecipeDto recipeDto = recommendRecipeService.findById(id);
             return ApiResponseTemplete.success(SuccessCode.RECIPE_FOUND, recipeDto);
-        } catch (NoSuchElementException e) {
+        } catch (IllegalArgumentException e) {  // 예외 처리 수정
             return ApiResponseTemplete.error(ErrorCode.RECIPE_NOT_FOUND, null);
         }
     }
+
 
     // 🔹 레시피 수정 (PUT)
     @PutMapping("/update/{id}")
