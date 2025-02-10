@@ -1,5 +1,7 @@
 package com.project.chaesiktak.app.service;
 
+import com.project.chaesiktak.app.domain.User;
+import com.project.chaesiktak.app.domain.VeganType;
 import com.project.chaesiktak.app.dto.board.IngredientDto;
 import com.project.chaesiktak.app.dto.board.RecipeStepDto;
 import com.project.chaesiktak.app.dto.board.RecommendRecipeDto;
@@ -7,13 +9,15 @@ import com.project.chaesiktak.app.entity.IngredientEntity;
 import com.project.chaesiktak.app.entity.RecipeStepEntity;
 import com.project.chaesiktak.app.entity.RecommendRecipeEntity;
 import com.project.chaesiktak.app.repository.RecommendRecipeRepository;
+import com.project.chaesiktak.app.repository.UserRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +26,17 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
+
 public class RecommendRecipeService {
     private final RecommendRecipeRepository recommendRecipeRepository;
+    private final UserRepository userRepository;
+
+    @Autowired
+    public RecommendRecipeService(RecommendRecipeRepository recommendRecipeRepository,
+                                  UserRepository userRepository) {
+        this.recommendRecipeRepository = recommendRecipeRepository;
+        this.userRepository = userRepository;
+    }
 
 
     // 레시피 저장
@@ -89,33 +101,29 @@ public class RecommendRecipeService {
         }).collect(Collectors.toList());
     }
 
-/*
-    // 레시피 수정
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public RecommendRecipeDto update(Long id, RecommendRecipeDto recommendRecipeDto) {
-        RecommendRecipeEntity recommendRecipeEntity = recommendRecipeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 레시피입니다."));
 
-        recommendRecipeEntity.setTitle(recommendRecipeDto.getTitle());
-        recommendRecipeEntity.setSubtext(recommendRecipeDto.getSubtext());
-        recommendRecipeEntity.setKcal(recommendRecipeDto.getKcal());
-        recommendRecipeEntity.setTag(recommendRecipeDto.getTag());
-        recommendRecipeEntity.setPrevtext(recommendRecipeDto.getPrevtext());
-        recommendRecipeEntity.setFavorite(recommendRecipeDto.isFavorite());
+    // 만약 사용자의 특정 레시피만 가져오고 싶다면 아래처럼 구현할 수 있습니다.
+    public List<Map<String, Object>> getUserSpecificRecipes(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        // 재료 및 단계 수정
-        recommendRecipeEntity.setIngredients(recommendRecipeDto.getIngredients().stream()
-                .map(ingredientDto -> new IngredientEntity(ingredientDto.getName(), ingredientDto.getAmount()))
-                .collect(Collectors.toList()));
+        // 사용자의 VeganType(예를 들어, enum 타입)을 이용해 레시피를 조회 (repository 메소드 이름에 맞춰 조정)
+        List<RecommendRecipeEntity> recipeEntities = recommendRecipeRepository.findByTag(user.getVeganType());
 
-        recommendRecipeEntity.setContents(recommendRecipeDto.getContents().stream()
-                .map(stepDto -> new RecipeStepEntity(stepDto.getStep(), stepDto.getDescription()))
-                .collect(Collectors.toList()));
+        // 원하는 필드만 Map에 담아 반환
+        return recipeEntities.stream()
+                .map(recipe -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("recipeTitle", recipe.getTitle());
+                    map.put("recipeTag", recipe.getTag().toString());
+                    map.put("recipeImage", recipe.getImage());
+                    map.put("recipePrevtext", recipe.getPrevtext());
+                    map.put("url", "/recipe/" + recipe.getId());
+                    return map;
+                })
+                .collect(Collectors.toList());
+    }
 
-        recommendRecipeRepository.save(recommendRecipeEntity);
-
-        return convertToDto(recommendRecipeEntity);
-    }*/
 
     @PersistenceContext
     private EntityManager entityManager;

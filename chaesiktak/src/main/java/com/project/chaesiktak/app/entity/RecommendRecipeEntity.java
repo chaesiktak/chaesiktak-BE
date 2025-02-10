@@ -1,5 +1,6 @@
 package com.project.chaesiktak.app.entity;
 
+import com.project.chaesiktak.app.domain.VeganType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,10 @@ public class RecommendRecipeEntity {
     private String title;
     private String subtext;
     private String kcal;
-    private String tag;
+
+    @Enumerated(EnumType.STRING)
+    private VeganType tag; // 레시피의 비건 타입
+
     private String prevtext;
     private boolean isFavorite;
 

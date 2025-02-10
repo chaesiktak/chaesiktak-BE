@@ -1,5 +1,6 @@
 package com.project.chaesiktak.app.dto.board;
 
+import com.project.chaesiktak.app.domain.VeganType;
 import lombok.*;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class RecommendRecipeDto {
     private String title;
     private String subtext;
     private String kcal;
-    private String tag;
+    private VeganType tag;
     private String prevtext;
     private boolean isFavorite;
     private List<IngredientDto> ingredients;
