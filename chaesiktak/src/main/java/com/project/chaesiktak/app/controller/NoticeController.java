@@ -13,6 +13,7 @@ import com.project.chaesiktak.global.exception.ErrorCode;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 
@@ -40,10 +41,12 @@ public class NoticeController {
 
     // 🔹 공지사항 전체 조회 (GET)
     @GetMapping("/")
-    public ResponseEntity<ApiResponseTemplete<List<NoticeDto>>> findAll() {
-        List<NoticeDto> noticeList = noticeService.findAll();
+    public ResponseEntity<ApiResponseTemplete<List<Map<String, Object>>>> findAll() {
+        List<Map<String, Object>> noticeList = noticeService.findAllNotice();
         return ApiResponseTemplete.success(SuccessCode.NOTICE_FOUND, noticeList);
     }
+
+
 
     // 🔹 공지사항 상세 조회 (GET)
     @GetMapping("/{id}")
@@ -58,14 +61,17 @@ public class NoticeController {
 
     // 🔹 공지사항 수정 (PUT)
     @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponseTemplete<NoticeDto>> update(@RequestBody NoticeDto noticeDto) {
+    public ResponseEntity<ApiResponseTemplete<NoticeDto>> update(
+            @PathVariable Long id,
+            @RequestBody NoticeDto noticeDto) {
         try {
-            NoticeDto updatedNotice = noticeService.update(noticeDto);
+            NoticeDto updatedNotice = noticeService.update(id, noticeDto);
             return ApiResponseTemplete.success(SuccessCode.NOTICE_UPDATED, updatedNotice);
         } catch (NoSuchElementException e) {
             return ApiResponseTemplete.error(ErrorCode.NOTICE_NOT_FOUND, null);
         }
     }
+
 
     // 🔹 공지사항 삭제 (DELETE)
     @DeleteMapping("/delete/{id}")
