@@ -181,4 +181,13 @@ public class TokenService {
         response.setHeader(refreshHeader, BEARER + refreshToken);
         log.info("[AccessToken & RefreshToken 발급 완료]");
     }
+
+    /**
+     * logout 을 위한 R토큰 제거
+     */
+    @Transactional
+    public void removeRefreshToken(String email) {
+        userRepository.findByEmail(email)
+                .ifPresent(user -> user.updateRefreshToken(null));
+    }
 }
