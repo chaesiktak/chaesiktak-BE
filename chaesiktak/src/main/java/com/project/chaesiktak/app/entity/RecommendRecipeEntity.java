@@ -7,12 +7,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
+
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor(force = true)
 @Entity
+
 public class RecommendRecipeEntity {
 
     @Id
@@ -20,8 +22,11 @@ public class RecommendRecipeEntity {
     private Long id;
 
     private Integer image;
+
     private String title;
+
     private String subtext;
+
     private String kcal;
 
     @Enumerated(EnumType.STRING)
@@ -39,6 +44,5 @@ public class RecommendRecipeEntity {
     @JoinColumn(name = "recipe_id")
     @BatchSize(size = 10)  // 한 번에 10개씩 조회
     private List<RecipeStepEntity> contents;
-
 
 }

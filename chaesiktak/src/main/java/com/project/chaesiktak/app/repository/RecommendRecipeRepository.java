@@ -14,11 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-/*
-@Repository
-public interface RecommendRecipeRepository extends JpaRepository<RecommendRecipeEntity, Long> {
 
-}*/
 
 
 @Repository
@@ -50,7 +46,12 @@ public interface RecommendRecipeRepository extends JpaRepository<RecommendRecipe
     // 엔티티의 프로퍼티 이름이 'tag'라면, 메소드 이름도 findByTag로 변경합니다.
     List<RecommendRecipeEntity> findByTag(VeganType tag);
 
-
+    // title, subtext, tag를 포함하여 검색
+    @Query("SELECT r FROM RecommendRecipeEntity r " +
+            "WHERE LOWER(r.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(r.subtext) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(r.tag) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    List<RecommendRecipeEntity> searchRecipes(@Param("searchTerm") String searchTerm);
 
 }
 
