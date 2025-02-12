@@ -1,7 +1,6 @@
 package com.project.chaesiktak.app.service;
 
 import com.project.chaesiktak.app.domain.User;
-import com.project.chaesiktak.app.domain.VeganType;
 import com.project.chaesiktak.app.dto.board.IngredientDto;
 import com.project.chaesiktak.app.dto.board.RecipeStepDto;
 import com.project.chaesiktak.app.dto.board.RecommendRecipeDto;
@@ -12,7 +11,6 @@ import com.project.chaesiktak.app.repository.RecommendRecipeRepository;
 import com.project.chaesiktak.app.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -38,6 +36,10 @@ public class RecommendRecipeService {
         this.userRepository = userRepository;
     }
 
+    @PersistenceContext
+    @Autowired
+    private EntityManager entityManager;
+
 
     // 레시피 저장
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -61,8 +63,40 @@ public class RecommendRecipeService {
         return convertToDto(recommendRecipeEntity); // 저장 후 DTO 반환
     }
 
+    // 레시피 검색 메서드
+    public List<Map<String, Object>> searchRecipes(String query) {
+        // 검색어를 공백으로 나눔
+        String[] keywords = query.split("\\s+");
 
-    // 레시피 조회
+        // 레시피 데이터 검색
+        List<RecommendRecipeEntity> recipes = recommendRecipeRepository.findAll();
+
+        // 검색된 레시피에서 조건에 맞는 결과 필터링 후 Map 형식으로 변환
+        return recipes.stream()
+                .filter(recipe -> {
+                    // 모든 키워드가 title, subtext, tag에 포함되어야 match
+                    for (String keyword : keywords) {
+                        if (!recipe.getTitle().contains(keyword) &&
+                                !recipe.getSubtext().contains(keyword) &&
+                                !recipe.getTag().toString().contains(keyword)) {
+                            return false;  // 하나라도 포함되지 않으면 제외
+                        }
+                    }
+                    return true;  // 모든 키워드가 포함된 레시피만 반환
+                })
+                .map(recipe -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("recipeTitle", recipe.getTitle());
+                    result.put("recipeTag", recipe.getTag().name()); // Enum 값을 문자열로 변환
+                    result.put("recipeImage", recipe.getImage() != null ? recipe.getImage().toString() : null); // 이미지가 null인 경우 처리
+                    result.put("recipePrevtext", recipe.getPrevtext());
+                    result.put("url", "/recipe/" + recipe.getId()); // URL은 /recipe/{id} 형태로 설정
+                    return result;
+                })
+                .collect(Collectors.toList());
+    }
+
+// 레시피 조회
     @Transactional
     public RecommendRecipeDto findById(Long id) {
         RecommendRecipeEntity recommendRecipeEntity = recommendRecipeRepository.findById(id)
@@ -102,12 +136,10 @@ public class RecommendRecipeService {
     }
 
 
-    // 만약 사용자의 특정 레시피만 가져오고 싶다면 아래처럼 구현할 수 있습니다.
     public List<Map<String, Object>> getUserSpecificRecipes(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        // 사용자의 VeganType(예를 들어, enum 타입)을 이용해 레시피를 조회 (repository 메소드 이름에 맞춰 조정)
         List<RecommendRecipeEntity> recipeEntities = recommendRecipeRepository.findByTag(user.getVeganType());
 
         // 원하는 필드만 Map에 담아 반환
@@ -125,8 +157,7 @@ public class RecommendRecipeService {
     }
 
 
-    @PersistenceContext
-    private EntityManager entityManager;
+
 
     @PreAuthorize("hasAuthority('ADMIN')")
     public RecommendRecipeDto update(Long id, RecommendRecipeDto recommendRecipeDto) {
@@ -226,8 +257,9 @@ public class RecommendRecipeService {
                 ingredientDtos,
                 recipeStepDtos
         );
-    }
 
+
+    }
 
 }
 

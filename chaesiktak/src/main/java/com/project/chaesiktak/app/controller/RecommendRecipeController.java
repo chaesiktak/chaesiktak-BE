@@ -1,10 +1,13 @@
 package com.project.chaesiktak.app.controller;
 
+import com.project.chaesiktak.app.domain.VeganType;
 import com.project.chaesiktak.app.dto.board.RecommendRecipeDto;
+import com.project.chaesiktak.app.entity.RecommendRecipeEntity;
 import com.project.chaesiktak.app.service.RecommendRecipeService;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
 import com.project.chaesiktak.global.exception.ErrorCode;
 import com.project.chaesiktak.global.exception.SuccessCode;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -71,5 +74,12 @@ public class RecommendRecipeController {
         } catch (NoSuchElementException e) {
             return ApiResponseTemplete.error(ErrorCode.RECIPE_NOT_FOUND, null);
         }
+    }
+
+    // 레시피 검색
+    @GetMapping("/search")
+    public ResponseEntity<?> searchRecipes(@RequestParam String query) {
+        List<Map<String, Object>> results = recommendRecipeService.searchRecipes(query);
+        return ResponseEntity.ok(ApiResponseTemplete.success(SuccessCode.RECIPE_FOUND, results));
     }
 }
