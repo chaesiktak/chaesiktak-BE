@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 public class EmailVerificationController {
 
     private final EmailVerificationService emailVerificationService;
-
     /**
      * 이메일 인증 API : 사용자가 이메일 인증 링크 클릭시 해당 API 호출, 인증 처리.
      */
@@ -41,7 +40,6 @@ public class EmailVerificationController {
             );
         }
     }
-
     /**
      * 이메일 인증 재전송 API : 사용자가 이메일 인증을 하지 않았을 경우, 이메일 재전송 요청 처리.
      */
@@ -49,13 +47,4 @@ public class EmailVerificationController {
     public ApiResponseTemplete<String> resendVerificationEmail(@RequestBody LoginRequestDto loginRequestDto) {
         return emailVerificationService.resendVerificationEmail(loginRequestDto.getEmail(), loginRequestDto.getPassword());
     }
-
-    /**
-     * 비밀번호 재설정 API : 사용자가 비밀번호를 재설정하기 위해서 이메일 인증을 진행
-     */
-//
-//    @PostMapping("/passwordreset")
-//    public ApiResponseTemplete<String> passwordResetVerificationEmail(@RequestBody LoginRequestDto loginRequestDto) {
-//        return
-//    }
 }

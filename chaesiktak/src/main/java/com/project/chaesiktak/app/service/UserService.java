@@ -29,7 +29,6 @@ public class UserService {
     private final UserFavoriteRecipeRepository userFavoriteRecipeRepository;
     private final RecommendRecipeRepository recommendRecipeRepository;
 
-
     @Transactional
     public boolean updateVeganType(String email, VeganType veganType) {
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -99,7 +98,6 @@ public class UserService {
 
         return true;
     }
-
     /**
      * 레시피 좋아요 취소
      */
@@ -120,7 +118,6 @@ public class UserService {
 
         return false; // 좋아요가 되어 있지 않은 상태에서 취소 요청한 경우
     }
-
     /**
      * 사용자가 좋아요한 레시피 조회
      */

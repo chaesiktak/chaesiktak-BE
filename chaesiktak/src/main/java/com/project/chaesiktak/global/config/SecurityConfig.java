@@ -118,7 +118,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
     /**
      * Authorization 헤더에서 토큰을 추출
      */

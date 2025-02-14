@@ -1,6 +1,7 @@
 package com.project.chaesiktak.app.service;
 
 import com.project.chaesiktak.app.domain.User;
+import com.project.chaesiktak.app.domain.VeganType;
 import com.project.chaesiktak.app.dto.board.IngredientDto;
 import com.project.chaesiktak.app.dto.board.RecipeStepDto;
 import com.project.chaesiktak.app.dto.board.RecommendRecipeDto;
@@ -63,40 +64,114 @@ public class RecommendRecipeService {
         return convertToDto(recommendRecipeEntity); // 저장 후 DTO 반환
     }
 
-    // 레시피 검색 메서드
-    public List<Map<String, Object>> searchRecipes(String query) {
-        // 검색어를 공백으로 나눔
-        String[] keywords = query.split("\\s+");
+    // 레시피 검색
+    /**
+     * 레시피 검색 메소드
+     *
+     * @param query 검색어
+     * @param email 사용자 이메일
+     * @param type 채식 유형 (문자열)
+     * @param includeIngredients 선호하는 재료 목록
+     * @param excludeIngredients 비선호하는 재료 목록
+     * @return 검색 결과를 담은 Map 리스트
+     */
 
-        // 레시피 데이터 검색
-        List<RecommendRecipeEntity> recipes = recommendRecipeRepository.findAll();
+    public List<Map<String, Object>> searchRecipes(String query, String email, String type,
+                                                   List<String> includeIngredients, List<String> excludeIngredients) {
 
-        // 검색된 레시피에서 조건에 맞는 결과 필터링 후 Map 형식으로 변환
+        // 1. 사용자 정보 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // 2. 검색에 사용할 VeganType 결정
+        VeganType searchType = (type != null && !type.trim().isEmpty()) ?
+                VeganType.valueOf(type.toUpperCase()) :
+                (user.getVeganType() != null ? user.getVeganType() : VeganType.DEFAULT);
+
+        // 3. 태그 기반 레시피 검색 및 키워드 필터링
+        List<RecommendRecipeEntity> recipes = recommendRecipeRepository.findByTag(searchType)
+                .stream()
+                .filter(recipe -> containsKeyword(recipe, query))
+                .collect(Collectors.toList());
+
+        // 4. 비선호 재료가 포함된 레시피 제거
+        if (excludeIngredients != null && !excludeIngredients.isEmpty()) {
+            recipes = recipes.stream()
+                    .filter(recipe -> excludeIngredients.stream()
+                            .noneMatch(exclude ->
+                                    recipe.getIngredients().stream()
+                                            .anyMatch(ingredient -> ingredient.getName().toLowerCase().contains(exclude.toLowerCase()))
+                            )
+                    )
+                    .collect(Collectors.toList());
+        }
+
+        // 5. 선호 재료 포함 레시피 우선순위 계산 후 내림차순 정렬
+        if (includeIngredients != null && !includeIngredients.isEmpty()) {
+            recipes.sort(Comparator.comparingInt(recipe -> calculatePriority((RecommendRecipeEntity) recipe, includeIngredients))
+                    .reversed());
+        }
+
+        // 6. 결과 Map으로 변환
         return recipes.stream()
-                .filter(recipe -> {
-                    // 모든 키워드가 title, subtext, tag에 포함되어야 match
-                    for (String keyword : keywords) {
-                        if (!recipe.getTitle().contains(keyword) &&
-                                !recipe.getSubtext().contains(keyword) &&
-                                !recipe.getTag().toString().contains(keyword)) {
-                            return false;  // 하나라도 포함되지 않으면 제외
-                        }
-                    }
-                    return true;  // 모든 키워드가 포함된 레시피만 반환
-                })
                 .map(recipe -> {
                     Map<String, Object> result = new HashMap<>();
                     result.put("recipeTitle", recipe.getTitle());
-                    result.put("recipeTag", recipe.getTag().name()); // Enum 값을 문자열로 변환
-                    result.put("recipeImage", recipe.getImage() != null ? recipe.getImage().toString() : null); // 이미지가 null인 경우 처리
+                    result.put("recipeTag", recipe.getTag().name());
+                    result.put("recipeImage", recipe.getImage() != null ? recipe.getImage().toString() : null);
                     result.put("recipePrevtext", recipe.getPrevtext());
-                    result.put("url", "/recipe/" + recipe.getId()); // URL은 /recipe/{id} 형태로 설정
+                    result.put("url", "/recipe/" + recipe.getId());
                     return result;
                 })
                 .collect(Collectors.toList());
     }
 
-// 레시피 조회
+    /**
+     * 제목, 서브텍스트, 태그에 검색어가 포함되어 있는지 (대소문자 구분 없이) 확인
+     *
+     * @param recipe 검색 대상 레시피
+     * @param query  검색어
+     * @return 모든 키워드가 포함되어 있으면 true, 그렇지 않으면 false
+     */
+
+    private boolean containsKeyword(RecommendRecipeEntity recipe, String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return true; // 검색어가 없으면 모든 레시피를 포함
+        }
+        String[] keywords = query.toLowerCase().split("\\s+");
+
+        String title = recipe.getTitle() != null ? recipe.getTitle().toLowerCase() : "";
+        String subtext = recipe.getSubtext() != null ? recipe.getSubtext().toLowerCase() : "";
+        String tagStr = recipe.getTag() != null ? recipe.getTag().toString().toLowerCase() : "";
+
+        return Arrays.stream(keywords)
+                .allMatch(keyword -> title.contains(keyword)
+                        || subtext.contains(keyword)
+                        || tagStr.contains(keyword));
+    }
+
+    /**
+     * 선호 재료 포함 여부에 따른 가중치 계산
+     *
+     * @param recipe            검색 대상 레시피
+     * @param includeIngredients 선호하는 재료 목록
+     * @return 포함된 재료 개수를 반환
+     */
+    private int calculatePriority(RecommendRecipeEntity recipe, List<String> includeIngredients) {
+        if (includeIngredients == null || includeIngredients.isEmpty()) {
+            return 0;
+        }
+        return (int) includeIngredients.stream()
+                .filter(include ->
+                        recipe.getIngredients().stream()
+                                .anyMatch(ingredient -> ingredient.getName().toLowerCase().contains(include.toLowerCase()))
+                )
+                .count();
+    }
+
+
+
+    // 레시피 조회
     @Transactional
     public RecommendRecipeDto findById(Long id) {
         RecommendRecipeEntity recommendRecipeEntity = recommendRecipeRepository.findById(id)
@@ -118,8 +193,6 @@ public class RecommendRecipeService {
             return response;
         }).collect(Collectors.toList());
     }
-
-
     // 레시피 목록 조회
     public List<Map<String, Object>> findAllRecipe() {
         List<RecommendRecipeEntity> recipeEntities = recommendRecipeRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
@@ -135,13 +208,11 @@ public class RecommendRecipeService {
         }).collect(Collectors.toList());
     }
 
-
     public List<Map<String, Object>> getUserSpecificRecipes(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         List<RecommendRecipeEntity> recipeEntities = recommendRecipeRepository.findByTag(user.getVeganType());
-
         // 원하는 필드만 Map에 담아 반환
         return recipeEntities.stream()
                 .map(recipe -> {
@@ -156,9 +227,6 @@ public class RecommendRecipeService {
                 .collect(Collectors.toList());
     }
 
-
-
-
     @PreAuthorize("hasAuthority('ADMIN')")
     public RecommendRecipeDto update(Long id, RecommendRecipeDto recommendRecipeDto) {
         // 기존 엔티티를 찾음
@@ -172,12 +240,10 @@ public class RecommendRecipeService {
         recommendRecipeEntity.setTag(recommendRecipeDto.getTag());
         recommendRecipeEntity.setPrevtext(recommendRecipeDto.getPrevtext());
         recommendRecipeEntity.setFavorite(recommendRecipeDto.isFavorite());
-
         // 이미지 필드 업데이트
         if (recommendRecipeDto.getImage() != null) {
             recommendRecipeEntity.setImage(recommendRecipeDto.getImage());
         }
-
         // 재료 업데이트 (ingredients)
         if (recommendRecipeDto.getIngredients() != null) {
             // 기존 재료에서 더 이상 존재하지 않는 항목 삭제
@@ -188,13 +254,11 @@ public class RecommendRecipeService {
                     entityManager.remove(existingIngredient);
                 }
             }
-
             // 새로운 재료 리스트 설정
             recommendRecipeEntity.setIngredients(recommendRecipeDto.getIngredients().stream()
                     .map(ingredientDto -> new IngredientEntity(ingredientDto.getName(), ingredientDto.getAmount()))
                     .collect(Collectors.toList()));
         }
-
         // 단계 업데이트 (contents)
         if (recommendRecipeDto.getContents() != null) {
             // 기존 단계에서 더 이상 존재하지 않는 항목 삭제
@@ -205,23 +269,15 @@ public class RecommendRecipeService {
                     entityManager.remove(existingStep);
                 }
             }
-
             // 새로운 단계 리스트 설정
             recommendRecipeEntity.setContents(recommendRecipeDto.getContents().stream()
                     .map(stepDto -> new RecipeStepEntity(stepDto.getStep(), stepDto.getDescription()))
                     .collect(Collectors.toList()));
         }
-
         // 업데이트 후 저장
         recommendRecipeRepository.save(recommendRecipeEntity);
-
-        // 업데이트된 데이터를 반환
         return convertToDto(recommendRecipeEntity);
     }
-
-
-
-
     // 레시피 삭제
     @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(Long id) {
@@ -232,13 +288,11 @@ public class RecommendRecipeService {
         // 이미지 ID (Integer)를 경로로 변환
         Integer imageId = recommendRecipeEntity.getImage();
         // String imagePath = (imageId != null) ? "https://example.com/images/" + imageId + ".jpg" : "default_image_path.jpg";
-
         // Ingredients List 변환
         List<IngredientDto> ingredientDtos = recommendRecipeEntity.getIngredients() != null ?
                 recommendRecipeEntity.getIngredients().stream()
                         .map(ingredientEntity -> new IngredientDto(ingredientEntity.getName(), ingredientEntity.getAmount()))
                         .collect(Collectors.toList()) : new ArrayList<>();
-
         // Recipe Steps List 변환
         List<RecipeStepDto> recipeStepDtos = recommendRecipeEntity.getContents() != null ?
                 recommendRecipeEntity.getContents().stream()
@@ -257,9 +311,5 @@ public class RecommendRecipeService {
                 ingredientDtos,
                 recipeStepDtos
         );
-
-
     }
-
 }
-

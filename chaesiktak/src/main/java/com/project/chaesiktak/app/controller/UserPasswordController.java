@@ -17,7 +17,6 @@ public class UserPasswordController {
 
     private final PasswordService passwordService;
     private final TokenService tokenService;
-
     /**
      * 비밀번호 변경 API (Access Token 검증 후 변경)
      */

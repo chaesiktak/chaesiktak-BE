@@ -1,6 +1,5 @@
 package com.project.chaesiktak.app.service;
 
-
 import com.project.chaesiktak.app.dto.board.NoticeDto;
 import com.project.chaesiktak.app.entity.NoticeEntity;
 import com.project.chaesiktak.app.repository.NoticeRepository;
@@ -54,28 +53,21 @@ public class NoticeService {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     public NoticeDto update(Long id, NoticeDto noticeDto) {
-        // 기존 엔티티를 찾음
         NoticeEntity noticeEntity = noticeRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("공지사항을 찾을 수 없습니다."));
-
         // 제목과 내용만 업데이트 (id는 변경 X)
         noticeEntity.setNoticeTitle(noticeDto.getNoticeTitle());
         noticeEntity.setNoticeContent(noticeDto.getNoticeContent());
-
         // 업데이트 후 저장
         noticeRepository.save(noticeEntity);
 
         return findById(id); // 업데이트된 데이터를 반환
     }
 
-
-
-
     @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(Long id){
         noticeRepository.deleteById(id);
     }
-
 
     public List<Map<String, Object>> findAllNotice() {
         List<NoticeEntity> noticeEntities = noticeRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
@@ -96,17 +88,13 @@ public class NoticeService {
     public List<NoticeDto> getLatestNotices() {
         Pageable topThree = PageRequest.of(0, 3);
         List<NoticeEntity> notices = noticeRepository.findTop3ByLatestTime(topThree);
-
-        // 🔹 DTO 변환 (NoticeDto 수정 없이 해결)
+        // DTO 변환 (NoticeDto 수정 없이 해결)
         return notices.stream()
                 .map(n -> {
                     NoticeDto dto = new NoticeDto();
-                    BeanUtils.copyProperties(n, dto); // ✅ 자동 매핑
+                    BeanUtils.copyProperties(n, dto); // 자동 매핑
                     return dto;
                 })
                 .collect(Collectors.toList());
     }
-
-
-
 }

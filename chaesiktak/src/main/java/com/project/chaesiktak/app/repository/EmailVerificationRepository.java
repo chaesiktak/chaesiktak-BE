@@ -12,12 +12,10 @@ public interface EmailVerificationRepository extends JpaRepository<EmailVerifica
      * 특정 User로 EmailVerification을 조회.
      */
     Optional<EmailVerification> findByUser(User user);
-
     /**
      * 특정 토큰으로 EmailVerification을 조회.
      */
     Optional<EmailVerification> findByToken(String token);
-
     /**
      * 특정 User의 인증 데이터를 삭제
      */

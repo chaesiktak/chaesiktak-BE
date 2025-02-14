@@ -11,5 +11,4 @@ public class RecipeStepDto
 {
     private int step;
     private String description;
-
 }
