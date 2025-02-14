@@ -101,7 +101,7 @@ public class NoticeService {
         return notices.stream()
                 .map(n -> {
                     NoticeDto dto = new NoticeDto();
-                    BeanUtils.copyProperties(n, dto); // ✅ 자동 매핑
+                    BeanUtils.copyProperties(n, dto); // 자동 매핑
                     return dto;
                 })
                 .collect(Collectors.toList());

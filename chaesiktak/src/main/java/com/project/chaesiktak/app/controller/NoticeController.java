@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
 public class NoticeController {
     private final NoticeService noticeService;
 
-    // 🔹 공지사항 저장 (POST)
+    // 공지사항 저장 (POST)
     @PostMapping("/save")
     public ResponseEntity<ApiResponseTemplete<Void>> save(@RequestBody NoticeDto noticeDto) {
         try {
@@ -39,7 +39,7 @@ public class NoticeController {
     }
 
 
-    // 🔹 공지사항 전체 조회 (GET)
+    // 공지사항 전체 조회 (GET)
     @GetMapping("/")
     public ResponseEntity<ApiResponseTemplete<List<Map<String, Object>>>> findAll() {
         List<Map<String, Object>> noticeList = noticeService.findAllNotice();
@@ -48,7 +48,7 @@ public class NoticeController {
 
 
 
-    // 🔹 공지사항 상세 조회 (GET)
+    // 공지사항 상세 조회 (GET)
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseTemplete<NoticeDto>> findById(@PathVariable Long id) {
         try {
@@ -59,7 +59,7 @@ public class NoticeController {
         }
     }
 
-    // 🔹 공지사항 수정 (PUT)
+    // 공지사항 수정 (PUT)
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponseTemplete<NoticeDto>> update(
             @PathVariable Long id,
@@ -73,7 +73,7 @@ public class NoticeController {
     }
 
 
-    // 🔹 공지사항 삭제 (DELETE)
+    // 공지사항 삭제 (DELETE)
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponseTemplete<Void>> delete(@PathVariable Long id) {
         try {

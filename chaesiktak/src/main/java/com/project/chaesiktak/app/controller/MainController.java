@@ -2,9 +2,6 @@ package com.project.chaesiktak.app.controller;
 
 import com.project.chaesiktak.app.dto.board.NoticeDto;
 import com.project.chaesiktak.app.dto.user.CustomUserDetails;
-import com.project.chaesiktak.app.entity.RecommendRecipeEntity;
-import com.project.chaesiktak.app.repository.NoticeRepository;
-import com.project.chaesiktak.app.repository.RecommendRecipeRepository;
 import com.project.chaesiktak.app.service.NoticeService;
 import com.project.chaesiktak.app.service.RecommendRecipeService;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +28,7 @@ public class MainController {
         List<NoticeDto> notices = noticeService.getLatestNotices();
         List<Map<String, String>> noticeResponse = new ArrayList<>();
 
-        // 제목 및 공지사항 목록 URL 추가 (가장 먼저)
+        // 제목 및 공지사항 목록 URL
         noticeResponse.add(Map.of(
                 "title", "공지사항 목록",
                 "url", "/notice/"
@@ -45,17 +42,17 @@ public class MainController {
                 ))
                 .collect(Collectors.toList()));
 
-        // 레시피 가져오기 (전체 추천 레시피)
+        // 최신 등록 레시피
         List<Map<String, Object>> latestRecipes = recommendRecipeService.getLatestRecipes();
 
-        // 사용자 맞춤 레시피 가져오기
+        // 유저 타입별 레시피
         List<Map<String, Object>> userSpecificRecipes = recommendRecipeService.getUserSpecificRecipes(userDetails.getUsername());
 
         // 응답 데이터 생성
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("notices", noticeResponse);
         response.put("latest_recipes", latestRecipes);
-        response.put("user_specific_recipes", userSpecificRecipes); // 로그인된 유저의 vegan_type에 맞는 레시피
+        response.put("user_specific_recipes", userSpecificRecipes);
 
         return ResponseEntity.ok(response);
     }

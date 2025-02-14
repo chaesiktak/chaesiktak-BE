@@ -28,10 +28,6 @@ public class NoticeEntity extends BaseEntity {
     @Column
     private int noticeHits = 0;
 
-    /*
-    @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CommentEntity> commentEntityList = new ArrayList<>();
-    */
 
     public static NoticeEntity toSaveEntity(NoticeDto noticeDto) {
         NoticeEntity noticeEntity = new NoticeEntity();

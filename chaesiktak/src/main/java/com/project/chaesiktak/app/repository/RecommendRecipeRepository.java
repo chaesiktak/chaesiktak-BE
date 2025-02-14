@@ -2,7 +2,6 @@ package com.project.chaesiktak.app.repository;
 
 import com.project.chaesiktak.app.domain.VeganType;
 import com.project.chaesiktak.app.entity.RecommendRecipeEntity;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -12,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 
@@ -43,7 +41,7 @@ public interface RecommendRecipeRepository extends JpaRepository<RecommendRecipe
         return findTop9Recipes(PageRequest.of(0, 9));
     }
 
-    // 엔티티의 프로퍼티 이름이 'tag'라면, 메소드 이름도 findByTag로 변경합니다.
+    // 엔티티의 프로퍼티 이름이 'tag'라면, 메소드 이름도 findByTag로 변경
     List<RecommendRecipeEntity> findByTag(VeganType tag);
 
     // title, subtext, tag를 포함하여 검색
