@@ -39,7 +39,6 @@ public class TokenService {
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
     private static final String EMAIL_CLAIM = "email";
-
     /**
      * 생성자: JWT 키 및 만료 시간 설정
      */
@@ -53,7 +52,6 @@ public class TokenService {
         this.refreshTokenValidityTime = refreshTokenValidityTime;
         this.userRepository = userRepository;
     }
-
     /**
      * Access Token 생성
      */
@@ -68,7 +66,6 @@ public class TokenService {
                 .signWith(key)
                 .compact();
     }
-
     /**
      * Refresh Token 생성
      */
@@ -82,7 +79,6 @@ public class TokenService {
                 .signWith(key)
                 .compact();
     }
-
     /**
      * 토큰 검증 (유효성 및 만료 체크)
      */
@@ -101,7 +97,6 @@ public class TokenService {
             throw new CustomException(ErrorCode.INVALID_TOKEN_EXCEPTION, "유효하지 않은 토큰입니다.");
         }
     }
-
     /**
      * 토큰에서 사용자 이메일 추출
      */
@@ -122,7 +117,6 @@ public class TokenService {
             throw new CustomException(ErrorCode.INVALID_TOKEN_EXCEPTION, "유효하지 않은 토큰입니다.");
         }
     }
-
     /**
      * Refresh Token을 DB에 저장
      */
@@ -141,7 +135,6 @@ public class TokenService {
                         }
                 );
     }
-
     /**
      * HTTP 요청에서 AccessToken 추출
      */
@@ -150,7 +143,6 @@ public class TokenService {
                 .filter(accessToken -> accessToken.startsWith(BEARER))
                 .map(accessToken -> accessToken.replace(BEARER, ""));
     }
-
     /**
      * HTTP 요청에서 RefreshToken 추출
      */
@@ -159,7 +151,6 @@ public class TokenService {
                 .filter(refreshToken -> refreshToken.startsWith(BEARER))
                 .map(refreshToken -> refreshToken.replace(BEARER, ""));
     }
-
     /**
      * AccessToken을 HTTP 응답 헤더에 추가
      */
@@ -169,7 +160,6 @@ public class TokenService {
         response.setHeader(accessHeader, BEARER + accessToken);
         log.info("[AccessToken 발급] {}", accessToken);
     }
-
     /**
      * AccessToken & RefreshToken을 HTTP 응답 헤더에 추가
      */
@@ -181,7 +171,6 @@ public class TokenService {
         response.setHeader(refreshHeader, BEARER + refreshToken);
         log.info("[AccessToken & RefreshToken 발급 완료]");
     }
-
     /**
      * logout 을 위한 R토큰 제거
      */

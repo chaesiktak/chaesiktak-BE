@@ -88,6 +88,7 @@ public class RecommendRecipeService {
     }
 
 
+
     // 레시피 검색
     /**
      * 레시피 검색 메소드
@@ -192,16 +193,7 @@ public class RecommendRecipeService {
     }
 
 
-/*
-    // 레시피 조회
-    @Transactional
-    public RecommendRecipeDto findById(Long id) {
-        RecommendRecipeEntity recommendRecipeEntity = recommendRecipeRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 레시피입니다."));  // 예외 변경
-        return convertToDto(recommendRecipeEntity);
-    }
 
- */
 
     @Transactional
     public ResponseEntity<ApiResponseTemplete<RecommendRecipeDto>> findById(Long id) {
@@ -341,6 +333,7 @@ public class RecommendRecipeService {
             return ApiResponseTemplete.error(ErrorCode.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
 
 

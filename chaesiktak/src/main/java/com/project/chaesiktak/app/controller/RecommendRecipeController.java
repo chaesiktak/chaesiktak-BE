@@ -36,7 +36,6 @@ public class RecommendRecipeController {
     }
 
 
-
     // 레시피 전체 조회 (GET)
     @GetMapping("/")
     public ResponseEntity<ApiResponseTemplete<List<Map<String, Object>>>> findAll() {
@@ -58,7 +57,6 @@ public class RecommendRecipeController {
             @RequestBody RecommendRecipeDto recipeDto) {
         return recommendRecipeService.update(id, recipeDto);
     }
-
 
     // 레시피 삭제 (DELETE)
     @DeleteMapping("/delete/{id}")

@@ -1,11 +1,9 @@
 package com.project.chaesiktak.app.entity;
 
-
 import com.project.chaesiktak.app.dto.board.NoticeDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
 // DB의 테이블 역할을 하는 클래스
 @Entity
 @Getter
@@ -28,7 +26,6 @@ public class NoticeEntity extends BaseEntity {
     @Column
     private int noticeHits = 0;
 
-
     public static NoticeEntity toSaveEntity(NoticeDto noticeDto) {
         NoticeEntity noticeEntity = new NoticeEntity();
         noticeEntity.setNoticeWriter(noticeDto.getNoticeWriter() != null ? noticeDto.getNoticeWriter() : "관리자");
@@ -46,6 +43,4 @@ public class NoticeEntity extends BaseEntity {
         noticeEntity.setNoticeHits(noticeDto.getNoticeHits());
         return noticeEntity;
     }
-
 }
-

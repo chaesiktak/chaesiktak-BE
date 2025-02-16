@@ -1,6 +1,5 @@
 package com.project.chaesiktak.app.controller;
 
-
 import com.project.chaesiktak.app.dto.board.NoticeDto;
 import com.project.chaesiktak.app.service.NoticeService;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
@@ -10,19 +9,16 @@ import org.springframework.web.bind.annotation.*;
 import com.project.chaesiktak.global.exception.SuccessCode;
 import com.project.chaesiktak.global.exception.ErrorCode;
 
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/notice")
 public class NoticeController {
     private final NoticeService noticeService;
-
     // 공지사항 저장 (POST)
     @PostMapping("/save")
     public ResponseEntity<ApiResponseTemplete<Void>> save(@RequestBody NoticeDto noticeDto) {
@@ -37,23 +33,17 @@ public class NoticeController {
             return ApiResponseTemplete.error(ErrorCode.UNKNOWN_ERROR, null);
         }
     }
-
-
     // 공지사항 전체 조회 (GET)
     @GetMapping("/")
     public ResponseEntity<ApiResponseTemplete<List<Map<String, Object>>>> findAll() {
         List<Map<String, Object>> noticeList = noticeService.findAllNotice();
         return ApiResponseTemplete.success(SuccessCode.NOTICE_FOUND, noticeList);
     }
-
-
-
     // 공지사항 상세 조회 (GET)
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseTemplete<NoticeDto>> findById(@PathVariable Long id) {
         return noticeService.findById(id); // 그대로 반환
     }
-
 
     // 공지사항 수정 (PUT)
     @PutMapping("/update/{id}")
@@ -62,8 +52,6 @@ public class NoticeController {
             @RequestBody NoticeDto noticeDto) {
         return noticeService.update(id, noticeDto); // 그대로 반환
     }
-
-
 
     // 공지사항 삭제 (DELETE)
     @DeleteMapping("/delete/{id}")

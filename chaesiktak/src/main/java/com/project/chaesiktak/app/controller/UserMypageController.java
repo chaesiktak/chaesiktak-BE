@@ -1,12 +1,15 @@
 package com.project.chaesiktak.app.controller;
 
+import com.project.chaesiktak.app.dto.board.RecommendRecipeDto;
 import com.project.chaesiktak.app.dto.user.UserUpdateVeganDto;
 import com.project.chaesiktak.app.dto.user.UserUpdateNameDto;
 import com.project.chaesiktak.app.dto.user.UserUpdateNicknameDto;
+import com.project.chaesiktak.app.dto.user.UserWithdrawalDto;
 import com.project.chaesiktak.app.service.UserService;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
 import com.project.chaesiktak.global.security.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -155,5 +158,147 @@ public class UserMypageController {
                             .build()
             );
         }
+    }
+
+    @DeleteMapping("/withdraw")
+    public ResponseEntity<ApiResponseTemplete<String>> withdrawUser(
+            HttpServletRequest request,
+            @RequestBody UserWithdrawalDto dto){
+
+        String email = tokenService.extractAccessToken(request)
+                .flatMap(tokenService::extractEmail)
+                .orElse(null);
+
+        if (email == null) {
+            return ResponseEntity.status(401).body(
+                    ApiResponseTemplete.<String>builder()
+                            .status(401)
+                            .success(false)
+                            .message("인증되지 않은 사용자입니다.")
+                            .data(null)
+                            .build()
+            );
+        }
+        // 회원 탈퇴 로직 실행
+        userService.withdrawUser(email, dto.getReason());
+
+        return ResponseEntity.ok(
+                ApiResponseTemplete.<String>builder()
+                        .status(200)
+                        .success(true)
+                        .message("회원 탈퇴가 완료되었습니다.")
+                        .data("탈퇴 사유: " + dto.getReason())
+                        .build()
+        );
+    }
+    /**
+     * 레시피 좋아요 추가
+     */
+    @PostMapping("/favorite/{recipeId}")
+    public ResponseEntity<ApiResponseTemplete<String>> likeRecipe(
+            HttpServletRequest request,
+            @PathVariable Long recipeId) {
+
+        String email = tokenService.extractAccessToken(request)
+                .flatMap(tokenService::extractEmail)
+                .orElse(null);
+
+        if (email == null) {
+            return ResponseEntity.status(401).body(
+                    ApiResponseTemplete.<String>builder()
+                            .status(401)
+                            .success(false)
+                            .message("인증되지 않은 사용자입니다.")
+                            .data(null)
+                            .build()
+            );
+        }
+
+        boolean liked = userService.likeRecipe(email, recipeId);
+
+        if (liked) {
+            return ResponseEntity.ok(
+                    ApiResponseTemplete.<String>builder()
+                            .status(200)
+                            .success(true)
+                            .message("레시피 좋아요 성공")
+                            .data(null)
+                            .build()
+            );
+        } else {
+            return ResponseEntity.badRequest().body(
+                    ApiResponseTemplete.<String>builder()
+                            .status(400)
+                            .success(false)
+                            .message("이미 좋아요한 레시피입니다.")
+                            .data(null)
+                            .build()
+            );
+        }
+    }
+    /**
+     * 레시피 좋아요 취소
+     */
+    @DeleteMapping("/favorite/{recipeId}")
+    public ResponseEntity<ApiResponseTemplete<String>> unlikeRecipe(
+            HttpServletRequest request,
+            @PathVariable Long recipeId) {
+
+        String email = tokenService.extractAccessToken(request)
+                .flatMap(tokenService::extractEmail)
+                .orElse(null);
+
+        if (email == null) {
+            return ResponseEntity.status(401).body(
+                    ApiResponseTemplete.<String>builder()
+                            .status(401)
+                            .success(false)
+                            .message("인증되지 않은 사용자입니다.")
+                            .data(null)
+                            .build()
+            );
+        }
+
+        boolean unliked = userService.unlikeRecipe(email, recipeId);
+
+        if (unliked) {
+            return ResponseEntity.ok(
+                    ApiResponseTemplete.<String>builder()
+                            .status(200)
+                            .success(true)
+                            .message("레시피 좋아요 취소 성공")
+                            .data(null)
+                            .build()
+            );
+        } else {
+            return ResponseEntity.badRequest().body(
+                    ApiResponseTemplete.<String>builder()
+                            .status(400)
+                            .success(false)
+                            .message("좋아요한 기록이 없는 레시피입니다.")
+                            .data(null)
+                            .build()
+            );
+        }
+    }
+    /**
+     * 사용자가 좋아요한 레시피 목록 조회
+     */
+    @GetMapping("/favorite")
+    public ResponseEntity<ApiResponseTemplete<List<RecommendRecipeDto>>> getFavoriteRecipes(HttpServletRequest request) {
+        String email = tokenService.extractAccessToken(request)
+                .flatMap(tokenService::extractEmail)
+                .orElse(null);
+
+        List<RecommendRecipeDto> favoriteRecipes = userService.getFavoriteRecipes(email);
+
+        return ResponseEntity.ok(
+                ApiResponseTemplete.<List<RecommendRecipeDto>>builder()
+                        .status(200)
+                        .success(true)
+                        .message("좋아요한 레시피 목록")
+                        .data(favoriteRecipes)
+                        .build()
+        );
     }
 }

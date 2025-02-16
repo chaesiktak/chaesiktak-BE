@@ -23,5 +23,4 @@ public class IngredientEntity {
         this.name = name;
         this.amount = amount;
     }
-
 }

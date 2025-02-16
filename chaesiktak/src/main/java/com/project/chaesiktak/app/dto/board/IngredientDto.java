@@ -11,5 +11,4 @@ public class IngredientDto
 {
     private String name;
     private String amount;
-
 }

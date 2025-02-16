@@ -19,7 +19,6 @@ public enum SuccessCode {
     EMAIL_CERT_MESSAGE_SUCCESS(HttpStatus.OK, "이메일 전송이 완료되었습니다."),
     EMAIL_VERIFY_SUCCESS(HttpStatus.OK, "이메일 인증에 성공했습니다"),
 
-
     // 201 Created, Delete
     CREATE_POST_SUCCESS(HttpStatus.CREATED, "게시글 생성이 완료되었습니다."),
     DELETE_ATTENDANCE_SUCCESS(HttpStatus.NO_CONTENT, "작업 현장 탈퇴가 완료되었습니다."),
@@ -36,7 +35,6 @@ public enum SuccessCode {
     RECIPE_UPDATED(HttpStatus.OK, "레시피가 성공적으로 수정되었습니다."),
     RECIPE_DELETED(HttpStatus.OK, "레시피가 성공적으로 삭제되었습니다."),
     RECIPE_FOUND(HttpStatus.OK, "레시피 조회 성공");
-
 
     private final HttpStatus httpStatus;
     private final String message;
