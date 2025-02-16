@@ -3,18 +3,24 @@ package com.project.chaesiktak.app.service;
 import com.project.chaesiktak.app.domain.User;
 import com.project.chaesiktak.app.domain.VeganType;
 import com.project.chaesiktak.app.dto.board.IngredientDto;
+import com.project.chaesiktak.app.dto.board.NoticeDto;
 import com.project.chaesiktak.app.dto.board.RecipeStepDto;
 import com.project.chaesiktak.app.dto.board.RecommendRecipeDto;
 import com.project.chaesiktak.app.entity.IngredientEntity;
+import com.project.chaesiktak.app.entity.NoticeEntity;
 import com.project.chaesiktak.app.entity.RecipeStepEntity;
 import com.project.chaesiktak.app.entity.RecommendRecipeEntity;
 import com.project.chaesiktak.app.repository.RecommendRecipeRepository;
 import com.project.chaesiktak.app.repository.UserRepository;
+import com.project.chaesiktak.global.dto.ApiResponseTemplete;
+import com.project.chaesiktak.global.exception.ErrorCode;
+import com.project.chaesiktak.global.exception.SuccessCode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -188,13 +194,20 @@ public class RecommendRecipeService {
 
 
 
-    // 레시피 조회
+
     @Transactional
-    public RecommendRecipeDto findById(Long id) {
-        RecommendRecipeEntity recommendRecipeEntity = recommendRecipeRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 레시피입니다."));  // 예외 변경
-        return convertToDto(recommendRecipeEntity);
+    public ResponseEntity<ApiResponseTemplete<RecommendRecipeDto>> findById(Long id) {
+        try {
+            RecommendRecipeEntity recommendRecipeEntity = recommendRecipeRepository.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("존재하지 않는 레시피입니다."));
+            RecommendRecipeDto recommendRecipeDto = convertToDto(recommendRecipeEntity);
+            return ApiResponseTemplete.success(SuccessCode.RECIPE_FOUND, recommendRecipeDto);
+        } catch (NoSuchElementException e) {
+            // 예외 처리: 존재하지 않는 공지 시 ErrorResponse 반환
+            return ApiResponseTemplete.error(ErrorCode.RECIPE_NOT_FOUND, null);
+        }
     }
+
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getLatestRecipes() {
@@ -210,6 +223,8 @@ public class RecommendRecipeService {
             return response;
         }).collect(Collectors.toList());
     }
+
+
     // 레시피 목록 조회
     public List<Map<String, Object>> findAllRecipe() {
         List<RecommendRecipeEntity> recipeEntities = recommendRecipeRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
@@ -225,11 +240,13 @@ public class RecommendRecipeService {
         }).collect(Collectors.toList());
     }
 
+
     public List<Map<String, Object>> getUserSpecificRecipes(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         List<RecommendRecipeEntity> recipeEntities = recommendRecipeRepository.findByTag(user.getVeganType());
+
         // 원하는 필드만 Map에 담아 반환
         return recipeEntities.stream()
                 .map(recipe -> {
@@ -244,60 +261,88 @@ public class RecommendRecipeService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public RecommendRecipeDto update(Long id, RecommendRecipeDto recommendRecipeDto) {
-        // 기존 엔티티를 찾음
-        RecommendRecipeEntity recommendRecipeEntity = recommendRecipeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 레시피입니다."));
 
-        // 제목, 서브텍스트, 칼로리, 태그, 이전 설명, 즐겨찾기 필드 업데이트
-        recommendRecipeEntity.setTitle(recommendRecipeDto.getTitle());
-        recommendRecipeEntity.setSubtext(recommendRecipeDto.getSubtext());
-        recommendRecipeEntity.setKcal(recommendRecipeDto.getKcal());
-        recommendRecipeEntity.setTag(recommendRecipeDto.getTag());
-        recommendRecipeEntity.setPrevtext(recommendRecipeDto.getPrevtext());
-        recommendRecipeEntity.setFavorite(recommendRecipeDto.isFavorite());
-        // 이미지 필드 업데이트
-        if (recommendRecipeDto.getImage() != null) {
-            recommendRecipeEntity.setImage(recommendRecipeDto.getImage());
-        }
-        // 재료 업데이트 (ingredients)
-        if (recommendRecipeDto.getIngredients() != null) {
-            // 기존 재료에서 더 이상 존재하지 않는 항목 삭제
-            for (IngredientEntity existingIngredient : recommendRecipeEntity.getIngredients()) {
-                if (!recommendRecipeDto.getIngredients().stream()
-                        .anyMatch(ingredientDto -> ingredientDto.getName().equals(existingIngredient.getName()))) {
-                    // ingredients에서 더 이상 존재하지 않는 항목 삭제
-                    entityManager.remove(existingIngredient);
-                }
+
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponseTemplete<RecommendRecipeDto>> update(Long id, RecommendRecipeDto recommendRecipeDto) {
+        try {
+            // 기존 엔티티를 찾음
+            RecommendRecipeEntity recommendRecipeEntity = recommendRecipeRepository.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("존재하지 않는 레시피입니다."));
+
+            // 입력값 검증
+            if (recommendRecipeDto == null ||
+                    isNullOrEmpty(recommendRecipeDto.getTitle()) ||
+                    isNullOrEmpty(recommendRecipeDto.getSubtext()) ||
+                    recommendRecipeDto.getKcal() == null ||
+                    recommendRecipeDto.getTag() == null ||
+                    isNullOrEmpty(recommendRecipeDto.getPrevtext()) ||
+                    recommendRecipeDto.getIngredients() == null || recommendRecipeDto.getIngredients().isEmpty() ||
+                    recommendRecipeDto.getContents() == null || recommendRecipeDto.getContents().isEmpty()) {
+                return ApiResponseTemplete.error(ErrorCode.INVALID_REQUEST, null);
             }
-            // 새로운 재료 리스트 설정
-            recommendRecipeEntity.setIngredients(recommendRecipeDto.getIngredients().stream()
-                    .map(ingredientDto -> new IngredientEntity(ingredientDto.getName(), ingredientDto.getAmount()))
-                    .collect(Collectors.toList()));
-        }
-        // 단계 업데이트 (contents)
-        if (recommendRecipeDto.getContents() != null) {
-            // 기존 단계에서 더 이상 존재하지 않는 항목 삭제
-            for (RecipeStepEntity existingStep : recommendRecipeEntity.getContents()) {
-                if (!recommendRecipeDto.getContents().stream()
-                        .anyMatch(stepDto -> stepDto.getStep() == existingStep.getStep())) {
-                    // contents에서 더 이상 존재하지 않는 항목 삭제
-                    entityManager.remove(existingStep);
-                }
+
+            // 제목, 서브텍스트, 칼로리, 태그, 이전 설명, 즐겨찾기 필드 업데이트
+            recommendRecipeEntity.setTitle(recommendRecipeDto.getTitle());
+            recommendRecipeEntity.setSubtext(recommendRecipeDto.getSubtext());
+            recommendRecipeEntity.setKcal(recommendRecipeDto.getKcal());
+            recommendRecipeEntity.setTag(recommendRecipeDto.getTag());
+            recommendRecipeEntity.setPrevtext(recommendRecipeDto.getPrevtext());
+            recommendRecipeEntity.setFavorite(recommendRecipeDto.isFavorite());
+
+            // 이미지 필드 업데이트
+            if (recommendRecipeDto.getImage() != null) {
+                recommendRecipeEntity.setImage(recommendRecipeDto.getImage());
             }
-            // 새로운 단계 리스트 설정
-            recommendRecipeEntity.setContents(recommendRecipeDto.getContents().stream()
-                    .map(stepDto -> new RecipeStepEntity(stepDto.getStep(), stepDto.getDescription()))
-                    .collect(Collectors.toList()));
+
+            // 재료 업데이트 (ingredients)
+            if (recommendRecipeDto.getIngredients() != null) {
+                recommendRecipeEntity.getIngredients().removeIf(existingIngredient ->
+                        recommendRecipeDto.getIngredients().stream()
+                                .noneMatch(ingredientDto -> ingredientDto.getName().equals(existingIngredient.getName()))
+                );
+
+                recommendRecipeEntity.setIngredients(recommendRecipeDto.getIngredients().stream()
+                        .map(ingredientDto -> new IngredientEntity(ingredientDto.getName(), ingredientDto.getAmount()))
+                        .collect(Collectors.toList()));
+            }
+
+            // 단계 업데이트 (contents)
+            if (recommendRecipeDto.getContents() != null) {
+                recommendRecipeEntity.getContents().removeIf(existingStep ->
+                        recommendRecipeDto.getContents().stream()
+                                .noneMatch(stepDto -> stepDto.getStep() == existingStep.getStep())
+                );
+
+                recommendRecipeEntity.setContents(recommendRecipeDto.getContents().stream()
+                        .map(stepDto -> new RecipeStepEntity(stepDto.getStep(), stepDto.getDescription()))
+                        .collect(Collectors.toList()));
+            }
+
+            // 업데이트 후 저장
+            recommendRecipeRepository.save(recommendRecipeEntity);
+
+            // 업데이트된 데이터 반환
+            RecommendRecipeDto updatedRecipe = convertToDto(recommendRecipeEntity);
+            return ApiResponseTemplete.success(SuccessCode.RECIPE_UPDATED, updatedRecipe);
+
+        } catch (NoSuchElementException e) {
+            return ApiResponseTemplete.error(ErrorCode.RECIPE_NOT_FOUND, null);
+        } catch (Exception e) {
+            return ApiResponseTemplete.error(ErrorCode.INTERNAL_SERVER_ERROR, null);
         }
-        // 업데이트 후 저장
-        recommendRecipeRepository.save(recommendRecipeEntity);
-        return convertToDto(recommendRecipeEntity);
     }
+
+
+
+
     // 레시피 삭제
     @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(Long id) {
+        if (!recommendRecipeRepository.existsById(id)){
+            throw new NoSuchElementException("존재하지 않는 레시피입니다.");
+        }
         recommendRecipeRepository.deleteById(id);
     }
 
@@ -305,11 +350,13 @@ public class RecommendRecipeService {
         // 이미지 ID (Integer)를 경로로 변환
         Integer imageId = recommendRecipeEntity.getImage();
         // String imagePath = (imageId != null) ? "https://example.com/images/" + imageId + ".jpg" : "default_image_path.jpg";
+
         // Ingredients List 변환
         List<IngredientDto> ingredientDtos = recommendRecipeEntity.getIngredients() != null ?
                 recommendRecipeEntity.getIngredients().stream()
                         .map(ingredientEntity -> new IngredientDto(ingredientEntity.getName(), ingredientEntity.getAmount()))
                         .collect(Collectors.toList()) : new ArrayList<>();
+
         // Recipe Steps List 변환
         List<RecipeStepDto> recipeStepDtos = recommendRecipeEntity.getContents() != null ?
                 recommendRecipeEntity.getContents().stream()
@@ -328,5 +375,9 @@ public class RecommendRecipeService {
                 ingredientDtos,
                 recipeStepDtos
         );
+
+
     }
+
 }
+

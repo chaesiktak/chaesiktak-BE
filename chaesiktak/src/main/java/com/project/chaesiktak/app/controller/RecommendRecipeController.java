@@ -21,43 +21,43 @@ import java.util.NoSuchElementException;
 public class RecommendRecipeController {
 
     private final RecommendRecipeService recommendRecipeService;
+
     // 레시피 저장 (POST)
     @PostMapping("/save")
     public ResponseEntity<ApiResponseTemplete<Void>> save(@RequestBody RecommendRecipeDto recommendRecipeDto) {
         try {
             recommendRecipeService.save(recommendRecipeDto);
             return ApiResponseTemplete.success(SuccessCode.RECIPE_CREATED, null);
+        } catch (IllegalArgumentException e) {
+            return ApiResponseTemplete.error(ErrorCode.INVALID_REQUEST, null);
         } catch (Exception e) {
-            // 모든 예외 처리
-            return ApiResponseTemplete.error(ErrorCode.UNKNOWN_ERROR, null);
+            return ApiResponseTemplete.error(ErrorCode.INTERNAL_SERVER_ERROR, null);
         }
     }
+
+
     // 레시피 전체 조회 (GET)
     @GetMapping("/")
     public ResponseEntity<ApiResponseTemplete<List<Map<String, Object>>>> findAll() {
         List<Map<String, Object>> recipelist = recommendRecipeService.findAllRecipe();
         return ApiResponseTemplete.success(SuccessCode.RECIPE_FOUND, recipelist);
     }
+
     // 레시피 상세 조회 (GET)
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseTemplete<RecommendRecipeDto>> findById(@PathVariable Long id) {
-        try {
-            RecommendRecipeDto recipeDto = recommendRecipeService.findById(id);
-            return ApiResponseTemplete.success(SuccessCode.RECIPE_FOUND, recipeDto);
-        } catch (IllegalArgumentException e) {  // 예외 처리 수정
-            return ApiResponseTemplete.error(ErrorCode.RECIPE_NOT_FOUND, null);
-        }
+        return recommendRecipeService.findById(id);
     }
+
+
     // 레시피 수정 (PUT)
     @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponseTemplete<RecommendRecipeDto>> update(@PathVariable Long id, @RequestBody RecommendRecipeDto recipeDto) {
-        try {
-            RecommendRecipeDto updatedRecipe = recommendRecipeService.update(id, recipeDto);
-            return ApiResponseTemplete.success(SuccessCode.RECIPE_UPDATED, updatedRecipe);
-        } catch (NoSuchElementException e) {
-            return ApiResponseTemplete.error(ErrorCode.RECIPE_NOT_FOUND, null);
-        }
+    public ResponseEntity<ApiResponseTemplete<RecommendRecipeDto>> update(
+            @PathVariable Long id,
+            @RequestBody RecommendRecipeDto recipeDto) {
+        return recommendRecipeService.update(id, recipeDto);
     }
+
     // 레시피 삭제 (DELETE)
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponseTemplete<Void>> delete(@PathVariable Long id) {
@@ -66,8 +66,11 @@ public class RecommendRecipeController {
             return ApiResponseTemplete.success(SuccessCode.RECIPE_DELETED, null);
         } catch (NoSuchElementException e) {
             return ApiResponseTemplete.error(ErrorCode.RECIPE_NOT_FOUND, null);
+        } catch (Exception e) {
+            return ApiResponseTemplete.error(ErrorCode.INTERNAL_SERVER_ERROR, null);
         }
     }
+
     // 레시피 검색 (GET)
     @GetMapping("/search")
     public ResponseEntity<?> searchRecipes(
