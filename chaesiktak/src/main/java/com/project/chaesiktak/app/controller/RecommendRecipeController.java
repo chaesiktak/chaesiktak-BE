@@ -32,15 +32,12 @@ public class RecommendRecipeController {
             return ApiResponseTemplete.error(ErrorCode.UNKNOWN_ERROR, null);
         }
     }
-
-
     // 레시피 전체 조회 (GET)
     @GetMapping("/")
     public ResponseEntity<ApiResponseTemplete<List<Map<String, Object>>>> findAll() {
         List<Map<String, Object>> recipelist = recommendRecipeService.findAllRecipe();
         return ApiResponseTemplete.success(SuccessCode.RECIPE_FOUND, recipelist);
     }
-
     // 레시피 상세 조회 (GET)
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseTemplete<RecommendRecipeDto>> findById(@PathVariable Long id) {
@@ -51,8 +48,6 @@ public class RecommendRecipeController {
             return ApiResponseTemplete.error(ErrorCode.RECIPE_NOT_FOUND, null);
         }
     }
-
-
     // 레시피 수정 (PUT)
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponseTemplete<RecommendRecipeDto>> update(@PathVariable Long id, @RequestBody RecommendRecipeDto recipeDto) {
@@ -63,7 +58,6 @@ public class RecommendRecipeController {
             return ApiResponseTemplete.error(ErrorCode.RECIPE_NOT_FOUND, null);
         }
     }
-
     // 레시피 삭제 (DELETE)
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponseTemplete<Void>> delete(@PathVariable Long id) {
@@ -74,7 +68,6 @@ public class RecommendRecipeController {
             return ApiResponseTemplete.error(ErrorCode.RECIPE_NOT_FOUND, null);
         }
     }
-
     // 레시피 검색 (GET)
     @GetMapping("/search")
     public ResponseEntity<?> searchRecipes(

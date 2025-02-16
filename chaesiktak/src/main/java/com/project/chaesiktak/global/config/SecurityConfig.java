@@ -70,7 +70,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/sign-up", "/api/check/email", "/api/check/nickname",
                                 "/api/login", "/api/verify/email", "/api/verify/resend",
-                                "/api/verify/passwordupdate", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**")
+                                "/api/verify/passwordupdate", "/api/verify/mypage/withdraw","/swagger-ui.html",
+                                "/api/verify/mypage/favorite/" , "/api/verify/mypage/favorite/","/v3/api-docs/**", "/swagger-ui/**")
                         .permitAll() // 특정 요청 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
@@ -117,7 +118,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
     /**
      * Authorization 헤더에서 토큰을 추출
      */

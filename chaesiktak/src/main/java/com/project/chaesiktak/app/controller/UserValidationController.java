@@ -21,7 +21,6 @@ public class UserValidationController {
     private static final Pattern EMAIL_PATTERN = Pattern.compile( "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$" );
     // 닉네임 정규식 (한글, 영어, 숫자만 허용)
     private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]+$");
-
     /**
      * 이메일 중복 확인
      */
@@ -59,7 +58,6 @@ public class UserValidationController {
                 .data(isDuplicate) // true(중복), false(사용 가능)
                 .build());
     }
-
     /**
      * 닉네임 중복 확인 API
      */
@@ -87,7 +85,6 @@ public class UserValidationController {
                             .build()
             );
         }
-
         boolean isDuplicate = userRepository.findByUserNickName(nickname).isPresent();
         // 정상응답처리 : 중복 또는 가능
         return ResponseEntity.ok(ApiResponseTemplete.<Boolean>builder()

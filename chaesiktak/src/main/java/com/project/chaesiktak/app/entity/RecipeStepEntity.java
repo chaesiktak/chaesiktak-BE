@@ -1,6 +1,5 @@
 package com.project.chaesiktak.app.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,5 +22,4 @@ public class RecipeStepEntity {
         this.step = step;
         this.description = description;
     }
-
 }

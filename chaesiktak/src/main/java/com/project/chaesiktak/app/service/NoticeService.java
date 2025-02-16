@@ -1,6 +1,5 @@
 package com.project.chaesiktak.app.service;
 
-
 import com.project.chaesiktak.app.dto.board.NoticeDto;
 import com.project.chaesiktak.app.entity.NoticeEntity;
 import com.project.chaesiktak.app.repository.NoticeRepository;
@@ -30,7 +29,7 @@ import static ch.qos.logback.core.util.StringUtil.isNullOrEmpty;
 @RequiredArgsConstructor
 public class NoticeService {
     private final NoticeRepository noticeRepository;
-
+ 
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ApiResponseTemplete<NoticeDto>> save(NoticeDto noticeDto) throws IOException {
         // 입력값 검증
@@ -103,6 +102,9 @@ public class NoticeService {
         } catch (Exception e) {
             return ApiResponseTemplete.error(ErrorCode.INTERNAL_SERVER_ERROR, null);
         }
+      
+
+
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -115,8 +117,6 @@ public class NoticeService {
         // 공지사항 삭제
         noticeRepository.deleteById(id);
     }
-
-
 
     public List<Map<String, Object>> findAllNotice() {
         List<NoticeEntity> noticeEntities = noticeRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
@@ -146,7 +146,4 @@ public class NoticeService {
                 })
                 .collect(Collectors.toList());
     }
-
-
-
 }

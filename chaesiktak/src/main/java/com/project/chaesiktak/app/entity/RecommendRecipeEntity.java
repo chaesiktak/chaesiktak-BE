@@ -44,5 +44,4 @@ public class RecommendRecipeEntity {
     @JoinColumn(name = "recipe_id")
     @BatchSize(size = 10)  // 한 번에 10개씩 조회
     private List<RecipeStepEntity> contents;
-
 }

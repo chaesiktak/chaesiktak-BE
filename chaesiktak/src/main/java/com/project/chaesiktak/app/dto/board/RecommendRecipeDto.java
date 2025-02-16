@@ -22,5 +22,4 @@ public class RecommendRecipeDto {
     private boolean isFavorite;
     private List<IngredientDto> ingredients;
     private List<RecipeStepDto> contents;
-
 }

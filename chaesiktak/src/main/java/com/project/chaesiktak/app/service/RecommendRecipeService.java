@@ -210,8 +210,6 @@ public class RecommendRecipeService {
             return response;
         }).collect(Collectors.toList());
     }
-
-
     // 레시피 목록 조회
     public List<Map<String, Object>> findAllRecipe() {
         List<RecommendRecipeEntity> recipeEntities = recommendRecipeRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
@@ -227,13 +225,11 @@ public class RecommendRecipeService {
         }).collect(Collectors.toList());
     }
 
-
     public List<Map<String, Object>> getUserSpecificRecipes(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         List<RecommendRecipeEntity> recipeEntities = recommendRecipeRepository.findByTag(user.getVeganType());
-
         // 원하는 필드만 Map에 담아 반환
         return recipeEntities.stream()
                 .map(recipe -> {
@@ -248,9 +244,6 @@ public class RecommendRecipeService {
                 .collect(Collectors.toList());
     }
 
-
-
-
     @PreAuthorize("hasAuthority('ADMIN')")
     public RecommendRecipeDto update(Long id, RecommendRecipeDto recommendRecipeDto) {
         // 기존 엔티티를 찾음
@@ -264,12 +257,10 @@ public class RecommendRecipeService {
         recommendRecipeEntity.setTag(recommendRecipeDto.getTag());
         recommendRecipeEntity.setPrevtext(recommendRecipeDto.getPrevtext());
         recommendRecipeEntity.setFavorite(recommendRecipeDto.isFavorite());
-
         // 이미지 필드 업데이트
         if (recommendRecipeDto.getImage() != null) {
             recommendRecipeEntity.setImage(recommendRecipeDto.getImage());
         }
-
         // 재료 업데이트 (ingredients)
         if (recommendRecipeDto.getIngredients() != null) {
             // 기존 재료에서 더 이상 존재하지 않는 항목 삭제
@@ -280,13 +271,11 @@ public class RecommendRecipeService {
                     entityManager.remove(existingIngredient);
                 }
             }
-
             // 새로운 재료 리스트 설정
             recommendRecipeEntity.setIngredients(recommendRecipeDto.getIngredients().stream()
                     .map(ingredientDto -> new IngredientEntity(ingredientDto.getName(), ingredientDto.getAmount()))
                     .collect(Collectors.toList()));
         }
-
         // 단계 업데이트 (contents)
         if (recommendRecipeDto.getContents() != null) {
             // 기존 단계에서 더 이상 존재하지 않는 항목 삭제
@@ -297,23 +286,15 @@ public class RecommendRecipeService {
                     entityManager.remove(existingStep);
                 }
             }
-
             // 새로운 단계 리스트 설정
             recommendRecipeEntity.setContents(recommendRecipeDto.getContents().stream()
                     .map(stepDto -> new RecipeStepEntity(stepDto.getStep(), stepDto.getDescription()))
                     .collect(Collectors.toList()));
         }
-
         // 업데이트 후 저장
         recommendRecipeRepository.save(recommendRecipeEntity);
-
-        // 업데이트된 데이터를 반환
         return convertToDto(recommendRecipeEntity);
     }
-
-
-
-
     // 레시피 삭제
     @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(Long id) {
@@ -324,13 +305,11 @@ public class RecommendRecipeService {
         // 이미지 ID (Integer)를 경로로 변환
         Integer imageId = recommendRecipeEntity.getImage();
         // String imagePath = (imageId != null) ? "https://example.com/images/" + imageId + ".jpg" : "default_image_path.jpg";
-
         // Ingredients List 변환
         List<IngredientDto> ingredientDtos = recommendRecipeEntity.getIngredients() != null ?
                 recommendRecipeEntity.getIngredients().stream()
                         .map(ingredientEntity -> new IngredientDto(ingredientEntity.getName(), ingredientEntity.getAmount()))
                         .collect(Collectors.toList()) : new ArrayList<>();
-
         // Recipe Steps List 변환
         List<RecipeStepDto> recipeStepDtos = recommendRecipeEntity.getContents() != null ?
                 recommendRecipeEntity.getContents().stream()
@@ -349,9 +328,5 @@ public class RecommendRecipeService {
                 ingredientDtos,
                 recipeStepDtos
         );
-
-
     }
-
 }
-

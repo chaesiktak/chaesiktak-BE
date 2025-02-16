@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/verify")
@@ -18,14 +17,12 @@ public class UserPasswordController {
 
     private final PasswordService passwordService;
     private final TokenService tokenService;
-
     /**
      * 비밀번호 변경 API (Access Token 검증 후 변경)
      */
     @PostMapping("/passwordupdate")
     public ResponseEntity<ApiResponseTemplete<String>> changePassword(
             HttpServletRequest request, @RequestBody PasswordUpdateDto passwordUpdateDto) {
-
         // 요청 헤더에서 Access Token 추출
         String accessToken = tokenService.extractAccessToken(request)
                 .orElse(null);
@@ -40,7 +37,6 @@ public class UserPasswordController {
                             .build()
             );
         }
-
         // 토큰에서 이메일 추출 및 검증
         String email = tokenService.extractEmail(accessToken)
                 .orElse(null);
@@ -55,7 +51,6 @@ public class UserPasswordController {
                             .build()
             );
         }
-
         // 비밀번호 변경 실행
         boolean isUpdated = passwordService.changePassword(
                 passwordUpdateDto.getEmail(),
@@ -81,6 +76,29 @@ public class UserPasswordController {
                             .data("현재 비밀번호가 일치하지 않거나, 계정을 찾을 수 없습니다.")
                             .build()
             );
+        }
+    }
+    /**
+     * 비밀번호 초기화 (임시 비밀번호 이메일 전송)
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponseTemplete<String>> resetPassword(@RequestParam String email) {
+        boolean isReset = passwordService.resetPassword(email);
+
+        if (isReset) {
+            return ResponseEntity.ok(ApiResponseTemplete.<String>builder()
+                    .status(200)
+                    .success(true)
+                    .message("임시 비밀번호가 이메일로 전송되었습니다.")
+                    .data(email)
+                    .build());
+        } else {
+            return ResponseEntity.badRequest().body(ApiResponseTemplete.<String>builder()
+                    .status(400)
+                    .success(false)
+                    .message("비밀번호 초기화 실패")
+                    .data(null)
+                    .build());
         }
     }
 }
