@@ -51,36 +51,35 @@ public class NoticeController {
     // 공지사항 상세 조회 (GET)
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseTemplete<NoticeDto>> findById(@PathVariable Long id) {
-        try {
-            NoticeDto noticeDto = noticeService.findById(id);
-            return ApiResponseTemplete.success(SuccessCode.NOTICE_FOUND, noticeDto);
-        } catch (NoSuchElementException e) {
-            return ApiResponseTemplete.error(ErrorCode.NOTICE_NOT_FOUND, null);
-        }
+        return noticeService.findById(id); // 그대로 반환
     }
+
 
     // 공지사항 수정 (PUT)
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponseTemplete<NoticeDto>> update(
             @PathVariable Long id,
             @RequestBody NoticeDto noticeDto) {
-        try {
-            NoticeDto updatedNotice = noticeService.update(id, noticeDto);
-            return ApiResponseTemplete.success(SuccessCode.NOTICE_UPDATED, updatedNotice);
-        } catch (NoSuchElementException e) {
-            return ApiResponseTemplete.error(ErrorCode.NOTICE_NOT_FOUND, null);
-        }
+        return noticeService.update(id, noticeDto); // 그대로 반환
     }
+
 
 
     // 공지사항 삭제 (DELETE)
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponseTemplete<Void>> delete(@PathVariable Long id) {
         try {
+            // 공지사항 삭제 서비스 호출
             noticeService.delete(id);
+            // 성공 메시지 반환
             return ApiResponseTemplete.success(SuccessCode.NOTICE_DELETED, null);
         } catch (NoSuchElementException e) {
+            // 존재하지 않는 공지사항 처리
             return ApiResponseTemplete.error(ErrorCode.NOTICE_NOT_FOUND, null);
+        } catch (Exception e) {
+            // 기타 예외 처리
+            return ApiResponseTemplete.error(ErrorCode.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 }
