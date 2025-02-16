@@ -45,6 +45,18 @@ public class RecommendRecipeService {
     // 레시피 저장
     @PreAuthorize("hasAuthority('ADMIN')")
     public RecommendRecipeDto save(RecommendRecipeDto recommendRecipeDto) {
+        // 입력값 검증
+        if (recommendRecipeDto == null ||
+                isNullOrEmpty(recommendRecipeDto.getTitle()) ||
+                isNullOrEmpty(recommendRecipeDto.getSubtext()) ||
+                recommendRecipeDto.getKcal() == null ||
+                recommendRecipeDto.getTag() == null ||
+                isNullOrEmpty(recommendRecipeDto.getPrevtext()) ||
+                recommendRecipeDto.getIngredients() == null || recommendRecipeDto.getIngredients().isEmpty() ||
+                recommendRecipeDto.getContents() == null || recommendRecipeDto.getContents().isEmpty()) {
+            throw new IllegalArgumentException("레시피 제목, 부제목, 칼로리, 태그, 소개글, 재료, 요리 과정은 필수 입력값입니다.");
+        }
+
         RecommendRecipeEntity recommendRecipeEntity = new RecommendRecipeEntity();
         BeanUtils.copyProperties(recommendRecipeDto, recommendRecipeEntity); // DTO -> Entity 변환
 
@@ -64,6 +76,13 @@ public class RecommendRecipeService {
         return convertToDto(recommendRecipeEntity); // 저장 후 DTO 반환
     }
 
+    // 문자열이 null이거나 비어있는지 확인하는 유틸 메서드
+    private boolean isNullOrEmpty(String str) {
+        return str == null || str.trim().isEmpty();
+    }
+
+
+
     // 레시피 검색
     /**
      * 레시피 검색 메소드
@@ -75,7 +94,6 @@ public class RecommendRecipeService {
      * @param excludeIngredients 비선호하는 재료 목록
      * @return 검색 결과를 담은 Map 리스트
      */
-
     public List<Map<String, Object>> searchRecipes(String query, String email, String type,
                                                    List<String> includeIngredients, List<String> excludeIngredients) {
 
@@ -133,7 +151,6 @@ public class RecommendRecipeService {
      * @param query  검색어
      * @return 모든 키워드가 포함되어 있으면 true, 그렇지 않으면 false
      */
-
     private boolean containsKeyword(RecommendRecipeEntity recipe, String query) {
         if (query == null || query.trim().isEmpty()) {
             return true; // 검색어가 없으면 모든 레시피를 포함
