@@ -1,9 +1,9 @@
 package com.project.chaesiktak.app.controller;
 
 import com.project.chaesiktak.app.dto.board.RecommendRecipeDto;
-import com.project.chaesiktak.app.dto.user.UserUpdateVeganDto;
-import com.project.chaesiktak.app.dto.user.UserUpdateNameDto;
-import com.project.chaesiktak.app.dto.user.UserUpdateNicknameDto;
+import com.project.chaesiktak.app.dto.user.UserVeganDto;
+import com.project.chaesiktak.app.dto.user.UserNameDto;
+import com.project.chaesiktak.app.dto.user.UserNicknameDto;
 import com.project.chaesiktak.app.dto.user.UserWithdrawalDto;
 import com.project.chaesiktak.app.service.UserService;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
@@ -30,7 +30,7 @@ public class UserMypageController {
     @PatchMapping("/vegan")
     public ResponseEntity<ApiResponseTemplete<String>> updateVeganType(
             HttpServletRequest request,
-            @RequestBody UserUpdateVeganDto dto) {
+            @RequestBody UserVeganDto dto) {
 
         String email = tokenService.extractAccessToken(request)
                 .flatMap(tokenService::extractEmail)
@@ -77,7 +77,7 @@ public class UserMypageController {
     @PatchMapping("/name")
     public ResponseEntity<ApiResponseTemplete<String>> updateUserName(
             HttpServletRequest request,
-            @RequestBody UserUpdateNameDto dto) {
+            @RequestBody UserNameDto dto) {
 
         String email = tokenService.extractAccessToken(request)
                 .flatMap(tokenService::extractEmail)
@@ -124,7 +124,7 @@ public class UserMypageController {
     @PatchMapping("/nickname")
     public ResponseEntity<ApiResponseTemplete<String>> updateUserNickname(
             HttpServletRequest request,
-            @RequestBody UserUpdateNicknameDto dto) {
+            @RequestBody UserNicknameDto dto) {
 
         String email = tokenService.extractAccessToken(request)
                 .flatMap(tokenService::extractEmail)

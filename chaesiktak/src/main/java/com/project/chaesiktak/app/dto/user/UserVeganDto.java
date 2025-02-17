@@ -6,6 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserUpdateVeganDto {
+public class UserVeganDto {
     private VeganType veganType;
 }

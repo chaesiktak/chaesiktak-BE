@@ -1,17 +1,17 @@
 package com.project.chaesiktak.app.controller;
 
+import com.project.chaesiktak.app.dto.user.UserEmailDto;
+import com.project.chaesiktak.app.dto.user.UserNicknameDto;
 import com.project.chaesiktak.app.repository.UserRepository;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import java.util.Map;
-import java.util.regex.Pattern;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/check")
@@ -19,28 +19,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserValidationController {
 
     private final UserRepository userRepository;
+
     // 이메일 형식 검증 정규식 (영문, 숫자, 특수문자(+_.-)@영문, 숫자, 특수문자(-).영문(2~6자리))
-    private static final Pattern EMAIL_PATTERN = Pattern.compile( "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$" );
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$");
+
     // 닉네임 정규식 (한글, 영어, 숫자만 허용)
     private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]+$");
+
     /**
      * 이메일 중복 확인
      */
     @Operation(summary = "이메일 중복확인 API (토큰 인증 불필요)", security = @SecurityRequirement(name = ""))
     @PostMapping("/email")
-    public ResponseEntity<ApiResponseTemplete<Boolean>> checkEmail(@RequestBody Map<String, Object> request) {
-        // 예외처리1. 잘못된 요청 형식
-        if (!request.containsKey("email") || !(request.get("email") instanceof String email) || email.isBlank()) {
-            return ResponseEntity.badRequest().body(
-                    ApiResponseTemplete.<Boolean>builder()
-                            .status(400)
-                            .success(false)
-                            .message("잘못된 요청 형식입니다. email 필드를 사용해야 하며 문자열이어야 합니다.")
-                            .data(null)
-                            .build()
-            );
-        }
-        // 예외처리2. 잘못된 이메일 형식
+    public ResponseEntity<ApiResponseTemplete<Boolean>> checkEmail(@Valid @RequestBody UserEmailDto emailDto) {
+        String email = emailDto.getEmail();
+
+        // 예외처리1. 잘못된 이메일 형식
         if (!EMAIL_PATTERN.matcher(email).matches()) {
             return ResponseEntity.badRequest().body(
                     ApiResponseTemplete.<Boolean>builder()
@@ -53,7 +47,7 @@ public class UserValidationController {
         }
 
         boolean isDuplicate = userRepository.findByEmail(email).isPresent();
-        // 정상응답처리 : 중복 또는 가능
+
         return ResponseEntity.ok(ApiResponseTemplete.<Boolean>builder()
                 .status(200)
                 .success(true)
@@ -61,24 +55,16 @@ public class UserValidationController {
                 .data(isDuplicate) // true(중복), false(사용 가능)
                 .build());
     }
+
     /**
      * 닉네임 중복 확인 API
      */
     @Operation(summary = "닉네임 중복확인 API (토큰 인증 불필요)", security = @SecurityRequirement(name = ""))
     @PostMapping("/nickname")
-    public ResponseEntity<ApiResponseTemplete<Boolean>> checkNickname(@RequestBody Map<String, Object> request) {
-        // 예외처리1. 잘못된 요청 형식
-        if (!request.containsKey("userNickName") || !(request.get("userNickName") instanceof String nickname) || nickname.isBlank()) {
-            return ResponseEntity.badRequest().body(
-                    ApiResponseTemplete.<Boolean>builder()
-                            .status(400)
-                            .success(false)
-                            .message("잘못된 요청 형식입니다. userNickName 필드를 사용해야 하며 문자열이어야 합니다.")
-                            .data(null)
-                            .build()
-            );
-        }
-        // 예외처리2. 잘못된 닉네임 형식
+    public ResponseEntity<ApiResponseTemplete<Boolean>> checkNickname(@Valid @RequestBody UserNicknameDto nicknameDto) {
+        String nickname = nicknameDto.getUserNickName();
+
+        // 예외처리1. 잘못된 닉네임 형식
         if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
             return ResponseEntity.badRequest().body(
                     ApiResponseTemplete.<Boolean>builder()
@@ -89,8 +75,9 @@ public class UserValidationController {
                             .build()
             );
         }
+
         boolean isDuplicate = userRepository.findByUserNickName(nickname).isPresent();
-        // 정상응답처리 : 중복 또는 가능
+
         return ResponseEntity.ok(ApiResponseTemplete.<Boolean>builder()
                 .status(200)
                 .success(true)
