@@ -3,6 +3,8 @@ package com.project.chaesiktak.app.controller;
 import com.project.chaesiktak.app.dto.user.LoginRequestDto;
 import com.project.chaesiktak.app.service.EmailVerificationService;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,7 @@ public class EmailVerificationController {
     /**
      * 이메일 인증 API : 사용자가 이메일 인증 링크 클릭시 해당 API 호출, 인증 처리.
      */
+    @Operation(summary = "이메일 인증 내부 API (토큰 인증 불필요)", security = @SecurityRequirement(name = ""))
     @GetMapping("/email")
     public ResponseEntity<ApiResponseTemplete<String>> verifyEmail(@RequestParam String token) {
         boolean isVerified = emailVerificationService.verifyEmail(token).isSuccess();
@@ -43,6 +46,7 @@ public class EmailVerificationController {
     /**
      * 이메일 인증 재전송 API : 사용자가 이메일 인증을 하지 않았을 경우, 이메일 재전송 요청 처리.
      */
+    @Operation(summary = "이메일 재전송 내부 API (토큰 인증 불필요)", security = @SecurityRequirement(name = ""))
     @PostMapping("/resend")
     public ApiResponseTemplete<String> resendVerificationEmail(@RequestBody LoginRequestDto loginRequestDto) {
         return emailVerificationService.resendVerificationEmail(loginRequestDto.getEmail(), loginRequestDto.getPassword());

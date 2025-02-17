@@ -2,6 +2,8 @@ package com.project.chaesiktak.app.controller;
 
 import com.project.chaesiktak.app.repository.UserRepository;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class UserValidationController {
     /**
      * 이메일 중복 확인
      */
+    @Operation(summary = "이메일 중복확인 API (토큰 인증 불필요)", security = @SecurityRequirement(name = ""))
     @PostMapping("/email")
     public ResponseEntity<ApiResponseTemplete<Boolean>> checkEmail(@RequestBody Map<String, Object> request) {
         // 예외처리1. 잘못된 요청 형식
@@ -61,6 +64,7 @@ public class UserValidationController {
     /**
      * 닉네임 중복 확인 API
      */
+    @Operation(summary = "닉네임 중복확인 API (토큰 인증 불필요)", security = @SecurityRequirement(name = ""))
     @PostMapping("/nickname")
     public ResponseEntity<ApiResponseTemplete<Boolean>> checkNickname(@RequestBody Map<String, Object> request) {
         // 예외처리1. 잘못된 요청 형식

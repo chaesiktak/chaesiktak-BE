@@ -4,6 +4,7 @@ import com.project.chaesiktak.app.dto.board.NoticeDto;
 import com.project.chaesiktak.app.dto.user.CustomUserDetails;
 import com.project.chaesiktak.app.service.NoticeService;
 import com.project.chaesiktak.app.service.RecommendRecipeService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

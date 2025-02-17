@@ -6,6 +6,8 @@ import com.project.chaesiktak.app.repository.UserRepository;
 import com.project.chaesiktak.app.service.LoginService;
 import com.project.chaesiktak.global.security.TokenService;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class UserLoginController {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
+    @Operation(summary = "로그인 API (토큰 인증 불필요)", security = @SecurityRequirement(name = ""))
     @PostMapping("/login")
     public ResponseEntity<ApiResponseTemplete<LoginResponseDto>> login(@RequestBody LoginRequestDto loginRequestDto) {
         // 예외처리1. 아이디 또는 비밀번호 필드가 비어있거나, 올바르지 않은 형식인 경우
@@ -101,6 +104,7 @@ public class UserLoginController {
     /**
      * 로그아웃 API
      */
+    @Operation(summary = "로그아웃 API (Access 토큰 필요)")
     @PostMapping("/logout")
     public ResponseEntity<ApiResponseTemplete<String>> logout(HttpServletRequest request, HttpServletResponse response) {
         // 요청에서 액세스 토큰 추출

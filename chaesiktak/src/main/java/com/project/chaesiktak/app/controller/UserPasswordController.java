@@ -4,6 +4,8 @@ import com.project.chaesiktak.app.dto.user.PasswordUpdateDto;
 import com.project.chaesiktak.app.service.PasswordService;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
 import com.project.chaesiktak.global.security.TokenService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ public class UserPasswordController {
     /**
      * 비밀번호 변경 API (Access Token 검증 후 변경)
      */
+    @Operation(summary = "비밀번호 변경 API (Access 토큰 필요)")
     @PostMapping("/passwordupdate")
     public ResponseEntity<ApiResponseTemplete<String>> changePassword(
             HttpServletRequest request, @RequestBody PasswordUpdateDto passwordUpdateDto) {
@@ -81,6 +84,7 @@ public class UserPasswordController {
     /**
      * 비밀번호 초기화 (임시 비밀번호 이메일 전송)
      */
+    @Operation(summary = "임시 비밀번호 전송 API (토큰 인증 불필요)", security = @SecurityRequirement(name = ""))
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponseTemplete<String>> resetPassword(@RequestParam String email) {
         boolean isReset = passwordService.resetPassword(email);

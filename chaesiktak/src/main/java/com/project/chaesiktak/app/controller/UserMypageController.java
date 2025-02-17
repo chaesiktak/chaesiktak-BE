@@ -8,6 +8,7 @@ import com.project.chaesiktak.app.dto.user.UserWithdrawalDto;
 import com.project.chaesiktak.app.service.UserService;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
 import com.project.chaesiktak.global.security.TokenService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class UserMypageController {
     /**
      * 유저 비건 타입 변경
      */
+    @Operation(summary = "유저 채식 상태 변경 API (Access 토큰 필요)")
     @PatchMapping("/vegan")
     public ResponseEntity<ApiResponseTemplete<String>> updateVeganType(
             HttpServletRequest request,
@@ -71,6 +73,7 @@ public class UserMypageController {
     /**
      * 유저 이름 변경
      */
+    @Operation(summary = "유저 이름 변경 API (Access 토큰 필요)")
     @PatchMapping("/name")
     public ResponseEntity<ApiResponseTemplete<String>> updateUserName(
             HttpServletRequest request,
@@ -117,6 +120,7 @@ public class UserMypageController {
     /**
      * 유저 닉네임 변경
      */
+    @Operation(summary = "유저 닉네임 변경 API (Access 토큰 필요)")
     @PatchMapping("/nickname")
     public ResponseEntity<ApiResponseTemplete<String>> updateUserNickname(
             HttpServletRequest request,
@@ -160,6 +164,8 @@ public class UserMypageController {
         }
     }
 
+    // 회원 탈퇴
+    @Operation(summary = "유저 회원 탈퇴 API (Access 토큰 필요)")
     @DeleteMapping("/withdraw")
     public ResponseEntity<ApiResponseTemplete<String>> withdrawUser(
             HttpServletRequest request,
