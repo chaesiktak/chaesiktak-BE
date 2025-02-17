@@ -41,7 +41,7 @@ public class MainController {
                         "title", notice.getNoticeTitle(),
                         "url", "/notice/" + notice.getId()
                 ))
-                .collect(Collectors.toList()));
+                .toList());
 
         // 최신 등록 레시피
         List<Map<String, Object>> latestRecipes = recommendRecipeService.getLatestRecipes();

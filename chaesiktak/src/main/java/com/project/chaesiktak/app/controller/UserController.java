@@ -23,7 +23,7 @@ public class UserController {
      */
     @Operation(summary = "회원가입 API (토큰 인증 불필요)", security = @SecurityRequirement(name = ""))
     @PostMapping("/sign-up")
-    public ResponseEntity<ApiResponseTemplete<UserSignUpDto>> signUp(@RequestBody UserSignUpDto userSignUpDto) throws Exception {
+    public ResponseEntity<ApiResponseTemplete<UserSignUpDto>> signUp(@RequestBody UserSignUpDto userSignUpDto) {
         ApiResponseTemplete<UserSignUpDto> data = signUpService.signUp(userSignUpDto);
         return ResponseEntity.status(data.getStatus()).body(data);
     }
