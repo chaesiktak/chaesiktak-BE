@@ -29,6 +29,7 @@ public class UserService {
     private final UserFavoriteRecipeRepository userFavoriteRecipeRepository;
     private final RecommendRecipeRepository recommendRecipeRepository;
 
+    // 채식 상태 수정
     @Transactional
     public boolean updateVeganType(String email, VeganType veganType) {
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -41,6 +42,7 @@ public class UserService {
         return false;
     }
 
+    // 유저 이름 변경
     @Transactional
     public boolean updateUserName(String email, String userName) {
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -53,6 +55,7 @@ public class UserService {
         return false;
     }
 
+    // 유저 닉네임 변경
     @Transactional
     public boolean updateUserNickname(String email, String userNickName) {
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -65,6 +68,7 @@ public class UserService {
         return false;
     }
 
+    // 회원 탈퇴
     @Transactional
     public void withdrawUser(String email, String reason) {
         User user = userRepository.findByEmail(email)
@@ -79,6 +83,7 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    // 레시피 좋아요
     @Transactional
     public boolean likeRecipe(String email, Long recipeId) {
         User user = userRepository.findByEmail(email)

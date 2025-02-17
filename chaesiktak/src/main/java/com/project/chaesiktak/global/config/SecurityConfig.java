@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,6 +35,7 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
 
     private final LoginService loginService;
@@ -68,21 +70,21 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable) // 폼 로그인 비활성화
                 .httpBasic(AbstractHttpConfigurer::disable) // 기본 인증 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/sign-up", "/api/check/email", "/api/check/nickname",
-                                "/api/login", "/api/verify/email", "/api/verify/resend",
-                                "/api/verify/passwordupdate", "/api/verify/mypage/withdraw","/swagger-ui.html",
-                                "/api/verify/mypage/favorite/" , "/api/verify/mypage/favorite/","/v3/api-docs/**", "/swagger-ui/**")
+                        // Token 인증이 필요없는 API들을 추가하는 부분
+                        .requestMatchers("/api/sign-up", "/api/check/email", "/api/check/nickname", "/api/login",
+                                "/api/verify/email", "/api/verify/resend", "/api/verify/reset-password",
+                                "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**")
                         .permitAll() // 특정 요청 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.getWriter().write("Unauthorized: " + authException.getMessage());
+                            response.getWriter().write("{\"error\":\"Unauthorized: " + authException.getMessage() + "\"}");
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                            response.getWriter().write("Forbidden: " + accessDeniedException.getMessage());
+                            response.getWriter().write("{\"error\":\"Forbidden: " + accessDeniedException.getMessage() + "\"}");
                         })
                 )
                 .addFilterBefore(new OncePerRequestFilter() {
@@ -104,10 +106,13 @@ public class SecurityConfig {
                                         customUserDetails, null, customUserDetails.getAuthorities()
                                 );
                                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                            } catch (IllegalArgumentException e) {
+                                log.error("토큰에서 이메일 추출 실패: {}", e.getMessage());
+                                sendErrorResponse(response);
+                                return;
                             } catch (Exception e) {
-                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                                response.getWriter().write("{\"error\":\"Invalid or expired token\"}");
-                                e.printStackTrace();
+                                log.error("JWT 필터 처리 중 오류 발생: {}", e.getMessage(), e);
+                                sendErrorResponse(response);
                                 return;
                             }
                         }
@@ -118,6 +123,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     /**
      * Authorization 헤더에서 토큰을 추출
      */
@@ -127,5 +133,19 @@ public class SecurityConfig {
             return header.substring(7);  // "Bearer " 이후의 토큰 반환
         }
         return null;
+    }
+
+    /**
+     * 예외 발생 시 JSON 형식으로 응답을 반환하는 메서드
+     */
+    private void sendErrorResponse(HttpServletResponse response) {
+        try {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"error\":\"" + "Invalid or expired token" + "\"}");
+        } catch (IOException e) {
+            log.error("에러 응답 처리 중 IOException 발생: {}", e.getMessage(), e);
+        }
     }
 }
