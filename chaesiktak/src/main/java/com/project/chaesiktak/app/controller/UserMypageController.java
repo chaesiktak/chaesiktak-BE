@@ -2,9 +2,7 @@ package com.project.chaesiktak.app.controller;
 
 import com.project.chaesiktak.app.dto.board.RecommendRecipeDto;
 import com.project.chaesiktak.app.dto.user.UserMypageDto;
-import com.project.chaesiktak.app.dto.user.UserVeganDto;
-import com.project.chaesiktak.app.dto.user.UserNameDto;
-import com.project.chaesiktak.app.dto.user.UserNicknameDto;
+import com.project.chaesiktak.app.dto.user.UserMypageDto.*;
 import com.project.chaesiktak.app.dto.user.UserWithdrawalDto;
 import com.project.chaesiktak.app.service.UserService;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
@@ -64,7 +62,7 @@ public class UserMypageController {
     @PatchMapping("/vegan")
     public ResponseEntity<ApiResponseTemplete<String>> updateVeganType(
             HttpServletRequest request,
-            @RequestBody UserVeganDto dto) {
+            @RequestBody UserMypageDto.UserVeganDto dto) {
 
         String email = tokenService.extractAccessToken(request)
                 .flatMap(tokenService::extractEmail)

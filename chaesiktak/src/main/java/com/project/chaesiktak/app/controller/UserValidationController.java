@@ -1,7 +1,6 @@
 package com.project.chaesiktak.app.controller;
 
-import com.project.chaesiktak.app.dto.user.UserEmailDto;
-import com.project.chaesiktak.app.dto.user.UserNicknameDto;
+import com.project.chaesiktak.app.dto.user.UserMypageDto;
 import com.project.chaesiktak.app.repository.UserRepository;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +30,7 @@ public class UserValidationController {
      */
     @Operation(summary = "이메일 중복확인 API (토큰 인증 불필요)", security = @SecurityRequirement(name = ""))
     @PostMapping("/email")
-    public ResponseEntity<ApiResponseTemplete<Boolean>> checkEmail(@Valid @RequestBody UserEmailDto emailDto) {
+    public ResponseEntity<ApiResponseTemplete<Boolean>> checkEmail(@Valid @RequestBody UserMypageDto.UserEmailDto emailDto) {
         String email = emailDto.getEmail();
 
         // 예외처리1. 잘못된 이메일 형식
@@ -61,7 +60,7 @@ public class UserValidationController {
      */
     @Operation(summary = "닉네임 중복확인 API (토큰 인증 불필요)", security = @SecurityRequirement(name = ""))
     @PostMapping("/nickname")
-    public ResponseEntity<ApiResponseTemplete<Boolean>> checkNickname(@Valid @RequestBody UserNicknameDto nicknameDto) {
+    public ResponseEntity<ApiResponseTemplete<Boolean>> checkNickname(@Valid @RequestBody UserMypageDto.UserNicknameDto nicknameDto) {
         String nickname = nicknameDto.getUserNickName();
 
         // 예외처리1. 잘못된 닉네임 형식
