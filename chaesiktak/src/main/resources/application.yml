@@ -32,6 +32,12 @@ spring:
           timeout: 5000
           writetimeout: 5000
     auth-code-expiration-millis: ${MAIL_EXPTIME}
+  image:
+    server:
+      url: ${IMAGE_SERVER_URL}
+  llm:
+    server:
+      url: ${LLM_SERVER_URL}
   springdoc:
     api-docs:
       path: /v3/api-docs

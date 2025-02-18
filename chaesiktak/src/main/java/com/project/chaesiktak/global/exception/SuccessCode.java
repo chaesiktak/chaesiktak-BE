@@ -34,7 +34,10 @@ public enum SuccessCode {
     RECIPE_CREATED(HttpStatus.CREATED, "레시피가 성공적으로 생성되었습니다."),
     RECIPE_UPDATED(HttpStatus.OK, "레시피가 성공적으로 수정되었습니다."),
     RECIPE_DELETED(HttpStatus.OK, "레시피가 성공적으로 삭제되었습니다."),
-    RECIPE_FOUND(HttpStatus.OK, "레시피 조회 성공");
+    RECIPE_FOUND(HttpStatus.OK, "레시피 조회 성공"),
+
+    // Server
+    ANALYSIS_SUCCESS(HttpStatus.OK, "이미지 분석 성공");
 
     private final HttpStatus httpStatus;
     private final String message;
