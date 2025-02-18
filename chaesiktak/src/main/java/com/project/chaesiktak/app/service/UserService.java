@@ -3,6 +3,7 @@ package com.project.chaesiktak.app.service;
 import com.project.chaesiktak.app.domain.User;
 import com.project.chaesiktak.app.domain.VeganType;
 import com.project.chaesiktak.app.dto.board.RecommendRecipeDto;
+import com.project.chaesiktak.app.dto.user.UserMypageDto;
 import com.project.chaesiktak.app.entity.RecommendRecipeEntity;
 import com.project.chaesiktak.app.entity.UserFavoriteRecipeEntity;
 import com.project.chaesiktak.app.entity.WithdrawalEntity;
@@ -28,6 +29,16 @@ public class UserService {
     private final WithdrawalRepository withdrawalRepository;
     private final UserFavoriteRecipeRepository userFavoriteRecipeRepository;
     private final RecommendRecipeRepository recommendRecipeRepository;
+
+    /**
+     * 유저 정보 조회
+     */
+    public UserMypageDto getUserMypage(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER_EXCEPTION, ErrorCode.NOT_FOUND_USER_EXCEPTION.getMessage()));
+
+        return new UserMypageDto(user.getEmail(), user.getUserName(), user.getUserNickName());
+    }
 
     /**
      * 채식 상태 수정

@@ -1,6 +1,7 @@
 package com.project.chaesiktak.app.controller;
 
 import com.project.chaesiktak.app.dto.board.RecommendRecipeDto;
+import com.project.chaesiktak.app.dto.user.UserMypageDto;
 import com.project.chaesiktak.app.dto.user.UserVeganDto;
 import com.project.chaesiktak.app.dto.user.UserNameDto;
 import com.project.chaesiktak.app.dto.user.UserNicknameDto;
@@ -22,6 +23,42 @@ public class UserMypageController {
 
     private final UserService userService;
     private final TokenService tokenService;
+
+    /**
+     * 마이페이지 유저 정보 조회
+     */
+    @Operation(summary = "마이페이지 유저 정보 조회 API (Access 토큰 필요)")
+    @GetMapping
+    public ResponseEntity<ApiResponseTemplete<UserMypageDto>> getUserMypage(HttpServletRequest request) {
+        String email = tokenService.extractAccessToken(request)
+                .flatMap(tokenService::extractEmail)
+                .orElse(null);
+
+        if (email == null) {
+            return ResponseEntity.status(401).body(
+                    ApiResponseTemplete.<UserMypageDto>builder()
+                            .status(401)
+                            .success(false)
+                            .message("인증되지 않은 사용자입니다.")
+                            .data(null)
+                            .build()
+            );
+        }
+
+        UserMypageDto userMypageDto = userService.getUserMypage(email);
+
+        return ResponseEntity.ok(
+                ApiResponseTemplete.<UserMypageDto>builder()
+                        .status(200)
+                        .success(true)
+                        .message("유저 정보 조회 성공")
+                        .data(userMypageDto)
+                        .build()
+        );
+    }
+
+
+
 
     /**
      * 유저 비건 타입 변경
