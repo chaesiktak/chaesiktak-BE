@@ -1,6 +1,7 @@
 package com.project.chaesiktak.app.controller;
 
 import com.project.chaesiktak.app.service.ImageAnalysisService;
+import com.project.chaesiktak.global.dto.ApiResponseTemplete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,8 @@ public class ImageAnalysisController {
     }
 
     @PostMapping("/analyze-image")
-    public ResponseEntity<?> analyzeImage(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<ApiResponseTemplete<Map<String, Object>>> analyzeImage(@RequestBody Map<String, String> requestBody) {
         return imageAnalysisService.processImageAnalysis(requestBody);
     }
+
 }

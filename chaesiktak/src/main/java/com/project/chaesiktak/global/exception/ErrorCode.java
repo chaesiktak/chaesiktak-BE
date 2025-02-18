@@ -74,7 +74,12 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
 
     // Recipe
-    RECIPE_NOT_FOUND(HttpStatus.NOT_FOUND, "레시피를 찾을 수 없습니다.");
+    RECIPE_NOT_FOUND(HttpStatus.NOT_FOUND, "레시피를 찾을 수 없습니다."),
+
+    // Server
+    IMAGE_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 분석 서버 오류가 발생했습니다."),
+    NO_COUNTS_DATA(HttpStatus.BAD_REQUEST, "counts 데이터를 찾을 수 없습니다."),
+    LLM_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LLM 서버 오류가 발생했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
