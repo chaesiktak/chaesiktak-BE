@@ -5,6 +5,8 @@ import com.project.chaesiktak.app.domain.User;
 import com.project.chaesiktak.app.repository.EmailVerificationRepository;
 import com.project.chaesiktak.app.repository.UserRepository;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
+import com.project.chaesiktak.global.exception.ErrorCode;
+import com.project.chaesiktak.global.exception.model.CustomException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +23,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -51,10 +52,15 @@ public class EmailVerificationService {
      */
     @Transactional
     public ApiResponseTemplete<String> sendVerificationEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("해당 이메일을 가진 사용자를 찾을 수 없습니다. : " + email));
+        log.info("이메일 인증 요청: {}", email);
 
-        // 기존 이메일 인증 데이터를 삭제하여 하나의 이메일당 하나의 인증 데이터만 유지
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.error("이메일 인증 실패: 존재하지 않는 이메일 ({})", email);
+                    return new CustomException(ErrorCode.NOT_FOUND_USER_EXCEPTION,
+                            ErrorCode.NOT_FOUND_USER_EXCEPTION.getMessage());
+                });
+
         emailVerificationRepository.deleteByUser(user);
 
         String token = UUID.randomUUID().toString();
@@ -67,7 +73,7 @@ public class EmailVerificationService {
                 .build();
 
         emailVerificationRepository.save(emailVerification);
-        String verificationLink = "http://localhost:8080/api/verify/email?token=" + token;
+        String verificationLink = "http://localhost:8080/api/verify/email?token=" + token; // 기존 방식으로 롤백
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -77,6 +83,9 @@ public class EmailVerificationService {
             helper.setText("<p>채식탁 서비스의 이메일 인증을 위해 하단의 링크를 클릭해주세요! :</p><a href=\"" + verificationLink + "\">인증하기</a>", true);
 
             mailSender.send(message);
+
+            log.info("이메일 인증 링크 발송 완료: {}", email);
+
             return ApiResponseTemplete.<String>builder()
                     .status(200)
                     .success(true)
@@ -84,12 +93,8 @@ public class EmailVerificationService {
                     .data(null)
                     .build();
         } catch (MessagingException e) {
-            return ApiResponseTemplete.<String>builder()
-                    .status(500)
-                    .success(false)
-                    .message("이메일 전송에 실패하였습니다.")
-                    .data(null)
-                    .build();
+            log.error("이메일 전송 실패: {}", e.getMessage(), e);
+            throw new CustomException(ErrorCode.EMAIL_CERTIFICATION_SEND_MISSING_EXCEPTION, ErrorCode.EMAIL_CERTIFICATION_SEND_MISSING_EXCEPTION.getMessage());
         }
     }
 
@@ -98,21 +103,18 @@ public class EmailVerificationService {
      */
     @Transactional
     public ApiResponseTemplete<String> verifyEmail(String token) {
-        Optional<EmailVerification> optionalVerification = emailVerificationRepository.findByToken(token);
+        log.info("이메일 인증 검증 요청: token={}", token);
 
-        if (optionalVerification.isEmpty()) {
-            return ApiResponseTemplete.<String>builder()
-                    .status(400)
-                    .success(false)
-                    .message("유효하지 않거나 만료된 토큰입니다.")
-                    .data(null)
-                    .build();
-        }
+        EmailVerification verification = emailVerificationRepository.findByToken(token)
+                .orElseThrow(() -> {
+                    log.warn("이메일 인증 실패: 유효하지 않은 토큰 ({})", token);
+                    return new CustomException(ErrorCode.EXPIRED_TOKEN_EXCEPTION, "유효하지 않거나 만료된 토큰입니다.");
+                });
 
-        EmailVerification verification = optionalVerification.get();
         User user = verification.getUser();
 
         if (user.getEmailVerified()) {
+            log.info("이미 인증된 사용자: {}", user.getEmail());
             return ApiResponseTemplete.<String>builder()
                     .status(200)
                     .success(true)
@@ -123,17 +125,15 @@ public class EmailVerificationService {
 
         if (verification.getExpirationTime().before(new Date())) {
             emailVerificationRepository.delete(verification);
-            return ApiResponseTemplete.<String>builder()
-                    .status(400)
-                    .success(false)
-                    .message("인증 토큰이 만료되었습니다.")
-                    .data(null)
-                    .build();
+            log.warn("이메일 인증 실패: 만료된 토큰 ({})", token);
+            throw new CustomException(ErrorCode.EXPIRED_TOKEN_EXCEPTION, "인증 토큰이 만료되었습니다.");
         }
 
         user.setEmailVerified(true);
         userRepository.save(user);
         emailVerificationRepository.delete(verification);
+
+        log.info("이메일 인증 성공: {}", user.getEmail());
 
         return ApiResponseTemplete.<String>builder()
                 .status(200)
@@ -144,39 +144,27 @@ public class EmailVerificationService {
     }
 
     /**
-     * 이메일 인증 재전송 (기존 인증 데이터 삭제 후 새로운 데이터 저장)
+     * 이메일 인증 재전송
      */
     @Transactional
     public ApiResponseTemplete<String> resendVerificationEmail(String email, String password) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
+        log.info("이메일 인증 재전송 요청: {}", email);
 
-        if (optionalUser.isEmpty()) {
-            return ApiResponseTemplete.<String>builder()
-                    .status(400)
-                    .success(false)
-                    .message("존재하지 않는 이메일입니다.")
-                    .data(null)
-                    .build();
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.warn("이메일 인증 재전송 실패: 존재하지 않는 이메일 ({})", email);
+                    return new CustomException(ErrorCode.NOT_FOUND_USER_EXCEPTION,
+                            ErrorCode.NOT_FOUND_USER_EXCEPTION.getMessage());
+                });
 
-        User user = optionalUser.get();
-
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            return ApiResponseTemplete.<String>builder()
-                    .status(400)
-                    .success(false)
-                    .message("아이디 또는 비밀번호를 확인해주세요.")
-                    .data(null)
-                    .build();
+        if (user.getPassword() == null || !passwordEncoder.matches(password, user.getPassword())) {
+            log.warn("이메일 인증 재전송 실패: 비밀번호 불일치 ({})", email);
+            throw new CustomException(ErrorCode.PASSWORD_MISMATCH_EXCEPTION, ErrorCode.PASSWORD_MISMATCH_EXCEPTION.getMessage());
         }
 
         if (user.getEmailVerified()) {
-            return ApiResponseTemplete.<String>builder()
-                    .status(400)
-                    .success(false)
-                    .message("이미 이메일 인증이 완료되었습니다.")
-                    .data(null)
-                    .build();
+            log.info("이메일 인증 재전송 실패: 이미 인증된 사용자 ({})", email);
+            throw new CustomException(ErrorCode.UNAUTHORIZED_EMAIL_EXCEPTION, ErrorCode.UNAUTHORIZED_EMAIL_EXCEPTION.getMessage());
         }
 
         return sendVerificationEmail(email);

@@ -12,13 +12,13 @@ import com.project.chaesiktak.app.repository.UserRepository;
 import com.project.chaesiktak.app.repository.WithdrawalRepository;
 import com.project.chaesiktak.global.exception.ErrorCode;
 import com.project.chaesiktak.global.exception.model.CustomException;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,50 +29,61 @@ public class UserService {
     private final UserFavoriteRecipeRepository userFavoriteRecipeRepository;
     private final RecommendRecipeRepository recommendRecipeRepository;
 
-    // 채식 상태 수정
+    /**
+     * 채식 상태 수정
+     */
     @Transactional
     public boolean updateVeganType(String email, VeganType veganType) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setVeganType(veganType);
-            userRepository.save(user);
-            return true;
-        }
-        return false;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION,
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION.getMessage()
+                ));
+        user.setVeganType(veganType);
+        userRepository.save(user);
+        return true;
     }
 
-    // 유저 이름 변경
+    /**
+     * 유저 이름 변경
+     */
     @Transactional
     public boolean updateUserName(String email, String userName) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setUserName(userName);
-            userRepository.save(user);
-            return true;
-        }
-        return false;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION,
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION.getMessage()
+                ));
+        user.setUserName(userName);
+        userRepository.save(user);
+        return true;
     }
 
-    // 유저 닉네임 변경
+    /**
+     * 유저 닉네임 변경
+     */
     @Transactional
     public boolean updateUserNickname(String email, String userNickName) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setUserNickName(userNickName);
-            userRepository.save(user);
-            return true;
-        }
-        return false;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION,
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION.getMessage()
+                ));
+        user.setUserNickName(userNickName);
+        userRepository.save(user);
+        return true;
     }
 
-    // 회원 탈퇴
+    /**
+     * 회원 탈퇴
+     */
     @Transactional
     public void withdrawUser(String email, String reason) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER_EXCEPTION, "유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION,
+                        "유저를 찾을 수 없습니다."
+                ));
 
         WithdrawalEntity withdrawal = WithdrawalEntity.builder()
                 .email(user.getEmail())
@@ -83,14 +94,22 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    // 레시피 좋아요
+    /**
+     * 레시피 좋아요
+     */
     @Transactional
     public boolean likeRecipe(String email, Long recipeId) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION,
+                        "사용자를 찾을 수 없습니다."
+                ));
 
         RecommendRecipeEntity recipe = recommendRecipeRepository.findById(recipeId)
-                .orElseThrow(() -> new IllegalArgumentException("레시피를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.NOT_FOUND_EVENT_DATA_EXCEPTION,
+                        "레시피를 찾을 수 없습니다."
+                ));
 
         // 이미 좋아요한 레시피인지 확인
         Optional<UserFavoriteRecipeEntity> existingFavorite = userFavoriteRecipeRepository.findByUserAndRecipe(user, recipe);
@@ -103,16 +122,23 @@ public class UserService {
 
         return true;
     }
+
     /**
      * 레시피 좋아요 취소
      */
     @Transactional
     public boolean unlikeRecipe(String email, Long recipeId) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION,
+                        "사용자를 찾을 수 없습니다."
+                ));
 
         RecommendRecipeEntity recipe = recommendRecipeRepository.findById(recipeId)
-                .orElseThrow(() -> new IllegalArgumentException("레시피를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.NOT_FOUND_EVENT_DATA_EXCEPTION,
+                        "레시피를 찾을 수 없습니다."
+                ));
 
         Optional<UserFavoriteRecipeEntity> favoriteRecipe = userFavoriteRecipeRepository.findByUserAndRecipe(user, recipe);
 
@@ -123,13 +149,17 @@ public class UserService {
 
         return false; // 좋아요가 되어 있지 않은 상태에서 취소 요청한 경우
     }
+
     /**
      * 사용자가 좋아요한 레시피 조회
      */
     @Transactional(readOnly = true)
     public List<RecommendRecipeDto> getFavoriteRecipes(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION,
+                        "사용자를 찾을 수 없습니다."
+                ));
 
         List<UserFavoriteRecipeEntity> favoriteRecipes = userFavoriteRecipeRepository.findByUser(user);
 

@@ -2,6 +2,8 @@ package com.project.chaesiktak.app.service;
 
 import com.project.chaesiktak.app.domain.User;
 import com.project.chaesiktak.app.repository.UserRepository;
+import com.project.chaesiktak.global.exception.ErrorCode;
+import com.project.chaesiktak.global.exception.model.CustomException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class PasswordService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
+
     /**
      * 비밀번호 변경 (Access Token 검증 후 실행)
      */
@@ -32,31 +35,41 @@ public class PasswordService {
         }
 
         User user = optionalUser.get();
+
         // 현재 비밀번호가 일치하는지 확인
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             return false; // 비밀번호 불일치
         }
+
         // 새로운 비밀번호를 암호화하여 저장
         user.setEncodedPassword(passwordEncoder, newPassword);
         userRepository.save(user);
 
         return true;
     }
+
     /**
      * 임시 비밀번호 발급 및 이메일 전송
      */
     @Transactional
     public boolean resetPassword(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION,
+                        ErrorCode.NOT_FOUND_USER_EXCEPTION.getMessage()
+                ));
+
         // 8자리 임시 비밀번호 생성
         String tempPassword = generateTemporaryPassword();
+
         // 새로운 비밀번호를 암호화하여 저장
         user.setEncodedPassword(passwordEncoder, tempPassword);
         userRepository.save(user);
+
         // 이메일로 임시 비밀번호 전송
         return sendTemporaryPasswordByEmail(email, tempPassword);
     }
+
     /**
      * 8자리 숫자로 임시 비밀번호 생성
      */
@@ -68,6 +81,7 @@ public class PasswordService {
         }
         return tempPassword.toString();
     }
+
     /**
      * 이메일로 임시 비밀번호 전송
      */
@@ -84,7 +98,10 @@ public class PasswordService {
             mailSender.send(message);
             return true;
         } catch (MessagingException e) {
-            throw new IllegalStateException("이메일 전송 실패", e);
+            throw new CustomException(
+                    ErrorCode.EMAIL_CERTIFICATION_SEND_MISSING_EXCEPTION,
+                    "이메일 전송 실패: " + e.getMessage()
+            );
         }
     }
 }
