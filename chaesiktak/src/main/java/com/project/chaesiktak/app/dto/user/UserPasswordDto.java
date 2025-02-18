@@ -5,8 +5,16 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PasswordUpdateDto {
+public class UserPasswordDto {
     private String email;
     private String currentPassword;
     private String newPassword;
+
+    // 임시 비밀번호 Dto
+    @Getter
+    @Setter
+    public static class UserPasswordResetDto {
+        private String email;
+        private String userName;
+    }
 }

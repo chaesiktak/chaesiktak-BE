@@ -57,9 +57,6 @@ public class UserMypageController {
         );
     }
 
-
-
-
     /**
      * 유저 비건 타입 변경
      */
@@ -234,6 +231,7 @@ public class UserMypageController {
                         .build()
         );
     }
+
     /**
      * 레시피 좋아요 추가
      */
@@ -279,6 +277,7 @@ public class UserMypageController {
             );
         }
     }
+
     /**
      * 레시피 좋아요 취소
      */
@@ -324,6 +323,7 @@ public class UserMypageController {
             );
         }
     }
+
     /**
      * 사용자가 좋아요한 레시피 목록 조회
      */

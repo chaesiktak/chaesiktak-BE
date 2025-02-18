@@ -37,7 +37,7 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER_EXCEPTION, ErrorCode.NOT_FOUND_USER_EXCEPTION.getMessage()));
 
-        return new UserMypageDto(user.getEmail(), user.getUserName(), user.getUserNickName());
+        return new UserMypageDto(user.getEmail(), user.getUserName(), user.getUserNickName(), user.getVeganType());
     }
 
     /**

@@ -52,12 +52,17 @@ public class PasswordService {
      * 임시 비밀번호 발급 및 이메일 전송
      */
     @Transactional
-    public boolean resetPassword(String email) {
+    public boolean resetPassword(String email, String userName) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(
                         ErrorCode.NOT_FOUND_USER_EXCEPTION,
                         ErrorCode.NOT_FOUND_USER_EXCEPTION.getMessage()
                 ));
+
+        // 입력한 이름과 데이터베이스 상의 정보 일치 검증
+        if (!user.getUserName().equals(userName)) {
+            throw new CustomException(ErrorCode.NOT_FOUND_USER_EXCEPTION,ErrorCode.NOT_FOUND_USER_EXCEPTION.getMessage());
+        }
 
         // 8자리 임시 비밀번호 생성
         String tempPassword = generateTemporaryPassword();
