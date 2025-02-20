@@ -2,9 +2,9 @@ spring:
   profiles:
     include: jwt
   datasource:
-    url: ${DB_JDBC_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${SERVER_DB_JDBC_URL}
+    username: ${SERVER_DB_USER}
+    password: ${SERVER_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true
@@ -32,11 +32,6 @@ spring:
           timeout: 5000
           writetimeout: 5000
     auth-code-expiration-millis: ${MAIL_EXPTIME}
-  springdoc:
-    api-docs:
-      path: /v3/api-docs
-    swagger-ui:
-      path: /swagger-ui.html
 
 image:
   server:
