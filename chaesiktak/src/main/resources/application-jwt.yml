@@ -6,3 +6,9 @@ jwt:
     expiration: ${RTOKEN_TIME}
     header: Refresh-Token
   secret: ${JWT_SECRET}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
