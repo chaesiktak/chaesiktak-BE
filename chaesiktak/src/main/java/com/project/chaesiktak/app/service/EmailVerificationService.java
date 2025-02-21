@@ -9,6 +9,7 @@ import com.project.chaesiktak.global.exception.ErrorCode;
 import com.project.chaesiktak.global.exception.model.CustomException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -105,12 +106,19 @@ public class EmailVerificationService {
     public ApiResponseTemplete<String> verifyEmail(String token) {
         log.info("이메일 인증 검증 요청: token={}", token);
 
-        EmailVerification verification = emailVerificationRepository.findByToken(token)
-                .orElseThrow(() -> {
-                    log.warn("이메일 인증 실패: 유효하지 않은 토큰 ({})", token);
-                    return new CustomException(ErrorCode.EXPIRED_TOKEN_EXCEPTION, "유효하지 않거나 만료된 토큰입니다.");
-                });
+        Optional<EmailVerification> optionalVerification = emailVerificationRepository.findByToken(token);
 
+        if (optionalVerification.isEmpty()) {
+            log.warn("이메일 인증 실패: 유효하지 않은 토큰 ({})", token);
+            return ApiResponseTemplete.<String>builder()
+                    .status(400)
+                    .success(false)
+                    .message("유효하지 않거나 만료된 토큰입니다.")
+                    .data(null)
+                    .build();
+        }
+
+        EmailVerification verification = optionalVerification.get();
         User user = verification.getUser();
 
         if (user.getEmailVerified()) {
@@ -126,7 +134,13 @@ public class EmailVerificationService {
         if (verification.getExpirationTime().before(new Date())) {
             emailVerificationRepository.delete(verification);
             log.warn("이메일 인증 실패: 만료된 토큰 ({})", token);
-            throw new CustomException(ErrorCode.EXPIRED_TOKEN_EXCEPTION, "인증 토큰이 만료되었습니다.");
+
+            return ApiResponseTemplete.<String>builder()
+                    .status(400)
+                    .success(false)
+                    .message("인증 토큰이 만료되었습니다. 이메일 인증을 다시 요청해주세요.")
+                    .data(null)
+                    .build();
         }
 
         user.setEmailVerified(true);
