@@ -73,7 +73,7 @@ public class EmailVerificationService {
                 .build();
 
         emailVerificationRepository.save(emailVerification);
-        String verificationLink = "http://localhost:8080/api/verify/email?token=" + token; // 기존 방식으로 롤백
+        String verificationLink = "http://52.78.99.122:8080/api/verify/email?token=" + token; // 주소 변경
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
