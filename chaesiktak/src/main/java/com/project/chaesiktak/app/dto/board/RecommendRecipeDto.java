@@ -13,7 +13,7 @@ import java.util.List;
 
 public class RecommendRecipeDto {
     private Long id;
-    private Integer image;
+    private String image;
     private String title;
     private String subtext;
     private String kcal;
