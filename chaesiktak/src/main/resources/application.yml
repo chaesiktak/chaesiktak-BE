@@ -44,4 +44,4 @@ llm:
 
 imgbb:
   api:
-    key: ${IMGBB_API_KEY}
+    key: aa58497f2dc42b019a6d46a8857ed468
