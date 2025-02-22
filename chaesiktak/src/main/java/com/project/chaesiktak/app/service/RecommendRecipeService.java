@@ -348,7 +348,7 @@ public class RecommendRecipeService {
 
     private RecommendRecipeDto convertToDto(RecommendRecipeEntity recommendRecipeEntity) {
         // 이미지 ID (Integer)를 경로로 변환
-        Integer imageId = recommendRecipeEntity.getImage();
+        String imageId = recommendRecipeEntity.getImage();
         // String imagePath = (imageId != null) ? "https://example.com/images/" + imageId + ".jpg" : "default_image_path.jpg";
 
         // Ingredients List 변환

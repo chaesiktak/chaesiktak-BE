@@ -21,7 +21,7 @@ public class RecommendRecipeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer image;
+    private String image;
 
     private String title;
 
