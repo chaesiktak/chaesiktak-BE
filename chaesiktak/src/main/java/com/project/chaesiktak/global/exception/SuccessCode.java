@@ -37,7 +37,9 @@ public enum SuccessCode {
     RECIPE_FOUND(HttpStatus.OK, "레시피 조회 성공"),
 
     // Server
-    ANALYSIS_SUCCESS(HttpStatus.OK, "이미지 분석 성공");
+    ANALYSIS_SUCCESS(HttpStatus.OK, "이미지 분석 성공"),
+
+    IMAGE_UPLOAD_SUCCESS(HttpStatus.OK, "이미지 업로드 성공");
 
     private final HttpStatus httpStatus;
     private final String message;

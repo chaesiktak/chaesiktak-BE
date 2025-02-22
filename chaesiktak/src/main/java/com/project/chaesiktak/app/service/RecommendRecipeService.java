@@ -63,8 +63,12 @@ public class RecommendRecipeService {
             throw new IllegalArgumentException("레시피 제목, 부제목, 칼로리, 태그, 소개글, 재료, 요리 과정은 필수 입력값입니다.");
         }
 
+        String image = recommendRecipeDto.getImage();
+
         RecommendRecipeEntity recommendRecipeEntity = new RecommendRecipeEntity();
         BeanUtils.copyProperties(recommendRecipeDto, recommendRecipeEntity); // DTO -> Entity 변환
+
+        recommendRecipeEntity.setImage(image);
 
         // IngredientEntity 및 RecipeStepEntity 추가
         List<IngredientEntity> ingredients = recommendRecipeDto.getIngredients().stream()
