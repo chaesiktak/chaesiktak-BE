@@ -38,7 +38,7 @@ public class ImageAnalysisService {
     public ResponseEntity<ApiResponseTemplete<Map<String, Object>>> processImageAnalysis(String imageUrl) {
         try {
             // 1. 이미지 파일을 imgBB로 업로드하여 URL 획득
-            //String imageUrl = imageService.uploadImage(imageFile);
+            // String imageUrl = imageService.uploadImage(imageFile); // 업로드 URL이 잘 전달됨
 
             // 2. AI 이미지 분석 서버에 URL 전송
             ResponseEntity<Map> imageResponse = restTemplate.postForEntity(IMAGE_SERVER_URL,
@@ -48,24 +48,32 @@ public class ImageAnalysisService {
                 return ApiResponseTemplete.error(ErrorCode.IMAGE_SERVER_ERROR, Map.of("error", "이미지 분석 서버 오류"));
             }
 
-            // 3. 응답에서 data만 추출 (imageUrl)
-            String imageData = (String) imageResponse.getBody().get("data");
-            if (imageData == null || imageData.isEmpty()) {
-                return ApiResponseTemplete.error(ErrorCode.NO_IMAGE_URL, Map.of("error", "이미지 URL 없음"));
+            // 3. 응답에서 counts 추출
+            Map<String, Object> counts = (Map<String, Object>) imageResponse.getBody().get("counts");
+
+            if (counts == null || counts.isEmpty()) {
+                return ApiResponseTemplete.error(ErrorCode.NO_IMAGE_URL, Map.of("error", "counts 데이터 없음"));
             }
 
-            // 4. AI 서버 응답에서 counts 데이터 추출
+            // 4. LLM 서버로 counts 데이터 전송
             ResponseEntity<Map> countsResponse = restTemplate.postForEntity(LLM_SERVER_URL,
-                    Collections.singletonMap("counts", imageData), Map.class);
+                    Collections.singletonMap("counts", counts), Map.class);
 
             if (countsResponse.getStatusCode() != HttpStatus.OK || countsResponse.getBody() == null) {
                 return ApiResponseTemplete.error(ErrorCode.LLM_SERVER_ERROR, Map.of("error", "LLM 서버 오류"));
             }
 
             // 5. LLM 서버의 응답을 최종 결과로 반환
-            return ApiResponseTemplete.success(SuccessCode.ANALYSIS_SUCCESS, countsResponse.getBody());
+            Map<String, Object> resultData = countsResponse.getBody();
+            if (resultData == null || resultData.isEmpty()) {
+                return ApiResponseTemplete.error(ErrorCode.LLM_SERVER_ERROR, Map.of("error", "LLM 서버 응답 비어 있음"));
+            }
+
+            // 분석 결과 반환
+            return ApiResponseTemplete.success(SuccessCode.ANALYSIS_SUCCESS, resultData);
 
         } catch (Exception e) {
+            // 예외 처리 시, 구체적인 오류 메시지를 포함하여 반환
             return ApiResponseTemplete.error(ErrorCode.INTERNAL_SERVER_ERROR, Map.of("error", "서버 오류: " + e.getMessage()));
         }
     }
