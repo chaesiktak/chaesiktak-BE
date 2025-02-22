@@ -3,12 +3,14 @@ package com.project.chaesiktak.global.config;
 import com.project.chaesiktak.app.dto.user.CustomUserDetails;
 import com.project.chaesiktak.app.service.LoginService;
 import com.project.chaesiktak.global.security.TokenService;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +29,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,10 +40,16 @@ import java.util.List;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 @Slf4j
-public class SecurityConfig {
+public class SecurityConfig implements WebMvcConfigurer {
 
     private final LoginService loginService;
     private final TokenService tokenService;
+
+    @Value("${image.server.url}")
+    private String imageServerUrl;
+    @Value("${llm.server.url}")
+    private String llmServerUrl;
+
 
     /**
      * 비밀번호 암호화 설정.
@@ -148,4 +158,14 @@ public class SecurityConfig {
             log.error("에러 응답 처리 중 IOException 발생: {}", e.getMessage(), e);
         }
     }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins(llmServerUrl, imageServerUrl)
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
+
 }
