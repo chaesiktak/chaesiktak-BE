@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -50,14 +51,23 @@ public class ImageAnalysisService {
 
             // 3. 응답에서 counts 추출
             Map<String, Object> counts = (Map<String, Object>) imageResponse.getBody().get("counts");
-
+            System.out.println(counts);
             if (counts == null || counts.isEmpty()) {
                 return ApiResponseTemplete.error(ErrorCode.NO_IMAGE_URL, Map.of("error", "counts 데이터 없음"));
             }
 
             // 4. LLM 서버로 counts 데이터 전송
-            ResponseEntity<Map> countsResponse = restTemplate.postForEntity(LLM_SERVER_URL,
-                    Collections.singletonMap("counts", counts), Map.class);
+            // LLM 서버로 JSON 형식으로 데이터를 전달
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("counts", counts);
+
+            // 요청 본문을 HttpEntity로 감싸기
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+            ResponseEntity<Map> countsResponse = restTemplate.exchange(LLM_SERVER_URL, HttpMethod.POST, entity, Map.class);
 
             if (countsResponse.getStatusCode() != HttpStatus.OK || countsResponse.getBody() == null) {
                 return ApiResponseTemplete.error(ErrorCode.LLM_SERVER_ERROR, Map.of("error", "LLM 서버 오류"));
