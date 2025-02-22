@@ -69,5 +69,4 @@ public class NoticeController {
             return ApiResponseTemplete.error(ErrorCode.INTERNAL_SERVER_ERROR, null);
         }
     }
-
 }

@@ -26,5 +26,4 @@ public class ImageAnalysisController {
     public ResponseEntity<ApiResponseTemplete<Map<String, Object>>> analyzeImage(@RequestBody Map<String, String> requestBody) {
         return imageAnalysisService.processImageAnalysis(requestBody);
     }
-
 }
