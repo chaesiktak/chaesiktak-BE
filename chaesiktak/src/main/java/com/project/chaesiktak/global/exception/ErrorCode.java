@@ -82,7 +82,8 @@ public enum ErrorCode {
     LLM_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LLM 서버 오류가 발생했습니다."),
 
     IMAGE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "이미지 업로드를 실패했습니다."),
-    IMAGE_UPLOAD_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드를 실패했습니다. (IO Error)");
+    IMAGE_UPLOAD_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드를 실패했습니다. (IO Error)"),
+    NO_IMAGE_URL(HttpStatus.NOT_FOUND, "이미지 URL을 찾을 수 없습니다.");
     private final HttpStatus httpStatus;
     private final String message;
 
