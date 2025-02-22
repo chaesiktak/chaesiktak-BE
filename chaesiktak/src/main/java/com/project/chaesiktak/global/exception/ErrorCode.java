@@ -79,8 +79,10 @@ public enum ErrorCode {
     // Server
     IMAGE_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 분석 서버 오류가 발생했습니다."),
     NO_COUNTS_DATA(HttpStatus.BAD_REQUEST, "counts 데이터를 찾을 수 없습니다."),
-    LLM_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LLM 서버 오류가 발생했습니다.");
+    LLM_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LLM 서버 오류가 발생했습니다."),
 
+    IMAGE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "이미지 업로드를 실패했습니다."),
+    IMAGE_UPLOAD_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드를 실패했습니다. (IO Error)");
     private final HttpStatus httpStatus;
     private final String message;
 

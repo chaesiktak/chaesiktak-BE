@@ -41,3 +41,7 @@ image:
 llm:
   server:
     url: ${LLM_SERVER_URL}
+
+imgbb:
+  api:
+    key: ${IMGBB_API_KEY}
