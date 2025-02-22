@@ -16,7 +16,7 @@ import java.util.Base64;
 @Service
 public class ImageService {
 
-    @Value("${imgbb.api.key")
+    @Value("${imgbb.api.key}")
     private String imgbbApiKey;
 
     private final RestTemplate restTemplate;
