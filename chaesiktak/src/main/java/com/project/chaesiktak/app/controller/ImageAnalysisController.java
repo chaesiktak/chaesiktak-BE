@@ -25,7 +25,7 @@ public class ImageAnalysisController {
     }
 
     // 이미지 업로드 후 분석 처리
-    @CrossOrigin(origins = {"http://chaesiktakimgseg.duckdns.org:5000", "http://chaesiktakllm.duckdns.org:5000"})
+    // @CrossOrigin(origins = {"http://chaesiktakimgseg.duckdns.org:5000", "http://chaesiktakllm.duckdns.org:5000"})
     @PostMapping("/analyze-image")
     public ResponseEntity<ApiResponseTemplete<Map<String, Object>>> analyzeImage(@RequestParam("image") MultipartFile imageFile) {
         try {
