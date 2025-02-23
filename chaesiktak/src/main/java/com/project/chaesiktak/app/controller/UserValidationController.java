@@ -49,9 +49,9 @@ public class UserValidationController {
 
         return ResponseEntity.ok(ApiResponseTemplete.<Boolean>builder()
                 .status(200)
-                .success(true)
+                .success(!isDuplicate)
                 .message(isDuplicate ? "이미 사용 중인 이메일입니다." : "사용 가능한 이메일입니다.")
-                .data(isDuplicate) // true(중복), false(사용 가능)
+                .data(isDuplicate)
                 .build());
     }
 
@@ -79,9 +79,9 @@ public class UserValidationController {
 
         return ResponseEntity.ok(ApiResponseTemplete.<Boolean>builder()
                 .status(200)
-                .success(true)
+                .success(!isDuplicate)
                 .message(isDuplicate ? "이미 사용 중인 닉네임입니다." : "사용 가능한 닉네임입니다.")
-                .data(isDuplicate) // true(중복), false(사용 가능)
+                .data(isDuplicate)
                 .build());
     }
 }
