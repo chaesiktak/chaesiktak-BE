@@ -5,6 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.chaesiktak.global.dto.ApiResponseTemplete;
 import com.project.chaesiktak.global.exception.ErrorCode;
 import com.project.chaesiktak.global.exception.SuccessCode;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
@@ -16,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
+@Tag(name = "이미지 URL API", description = "이미지를 업로드하고 URL 반환하는 API")
 @RestController
 @RequestMapping("/api/image")
 public class ImageController {
@@ -24,9 +30,18 @@ public class ImageController {
     private String apiKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
-
-    @PostMapping("/upload")
-    public ResponseEntity<ApiResponseTemplete<String>> uploadImage(@RequestParam("image") MultipartFile file) {
+    @Operation(
+            summary = "이미지 업로드 후 URL 반환",
+            description = "이미지를 업로드한 후 String URL을 제공합니다."
+    )
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponseTemplete<String>> uploadImage(
+            @Parameter(
+                    description = "업로드할 이미지 파일",
+                    content = @Content(mediaType = "multipart/form-data",
+                            schema = @Schema(type = "string", format = "binary"))
+            )
+            @RequestParam("image") MultipartFile file) {
         String url = "https://api.imgbb.com/1/upload?key=" + apiKey;
 
         try {
